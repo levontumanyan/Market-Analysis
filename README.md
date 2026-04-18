@@ -37,7 +37,12 @@ Benchmarks are defined in `benchmarks.json`. The system uses a **Sigmoid (S-Curv
 - [x] Support passing multiple tickers to `analyze.py`.
 - [x] Implement continuous linear/sigmoid scoring instead of binary pass/fail.
 - [x] Add an inside ownership benchmark.
-- [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett).
+- [x] Add institutional ownership metrics.
+- [ ] add dividend in the benchmarks
+- [ ] per benchmark function usage
+- [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
 - [ ] Add an ETF/mutual fund scanning script.
 - [ ] Change in institutional ownerships. [something like this](https://www.nasdaq.com/market-activity/stocks/aapl/institutional-holdings)
 - [ ] change in insider ownership
+- [ ] add analyst recommendations(buy/sell/hold)
+- [ ] add an AI layer, that will analyze news. sentiments.

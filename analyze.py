@@ -1,7 +1,7 @@
 import json
 import math
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import yfinance as yf
 from rich.console import Console
@@ -22,43 +22,59 @@ def load_benchmarks(file_path: str) -> List[Dict[str, Any]]:
 
 
 def calculate_sigmoid_score(val: float, best: float, worst: float) -> float:
-	"""
-	Calculates a score between 0 and 1 using a sigmoid (S-curve) function.
-	The curve is centered at the midpoint between best and worst.
-	"""
 	midpoint = (best + worst) / 2
-	# Calculate k (steepness) such that 'best' gets ~0.95 and 'worst' gets ~0.05
-	# 0.95 = 1 / (1 + exp(k * (best - midpoint)))
-	# ln(1/0.95 - 1) = k * (best - midpoint)
-	# k = ln(1/19) / (best - midpoint)
 	try:
 		k = math.log(1 / 19) / (best - midpoint)
-	except (ZeroDivisionError, ValueError):
-		k = 0.1  # Fallback
-
-	# Sigmoid formula: 1 / (1 + exp(k * (x - midpoint)))
-	try:
 		score = 1 / (1 + math.exp(k * (val - midpoint)))
-	except OverflowError:
-		score = 1.0 if (k * (val - midpoint)) < 0 else 0.0
-
+	except (ZeroDivisionError, ValueError, OverflowError):
+		score = 1.0 if val == best else 0.0
 	return score
+
+
+def calculate_linear_score(val: float, best: float, worst: float) -> float:
+	if best > worst:  # Higher is better
+		pct = (val - worst) / (best - worst)
+	else:  # Lower is better
+		pct = 1.0 - (val - best) / (worst - best)
+	return max(0.0, min(1.0, pct))
+
+
+def calculate_bell_score(val: float, target: float, width: float) -> float:
+	# Gaussian curve: exp(-0.5 * ((x - target) / width)^2)
+	try:
+		pct = math.exp(-0.5 * ((val - target) / width) ** 2)
+	except (ZeroDivisionError, OverflowError):
+		pct = 0.0
+	return pct
+
+
+def calculate_threshold_score(val: float, threshold: float) -> float:
+	return 1.0 if val >= threshold else 0.0
 
 
 def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str, Any]:
 	metric_key = benchmark["metric"]
 	val = info.get(metric_key)
 	weight = benchmark.get("weight", 1.0)
-	best = benchmark.get("best")
-	worst = benchmark.get("worst")
+	formula_type = benchmark.get("type", "sigmoid")
 
-	if val is None or best is None or worst is None:
+	if val is None:
 		return {"status": "N/A", "value": "N/A", "score": 0, "weight": 0, "pct": 0}
 
-	# Use Sigmoid Scoring
-	pct = calculate_sigmoid_score(val, best, worst)
-	score = weight * pct
+	# Dispatch to the correct mathematical formula
+	if formula_type == "sigmoid":
+		pct = calculate_sigmoid_score(val, benchmark.get("best", 0), benchmark.get("worst", 100))
+	elif formula_type == "linear":
+		pct = calculate_linear_score(val, benchmark.get("best", 0), benchmark.get("worst", 100))
+	elif formula_type == "bell_curve":
+		pct = calculate_bell_score(val, benchmark.get("target", 0), benchmark.get("width", 1))
+	elif formula_type == "threshold":
+		pct = calculate_threshold_score(val, benchmark.get("threshold", 0))
+	else:
+		pct = 0.0
 
+	score = weight * pct
+	
 	display_val = f"{val:.2f}"
 	if benchmark.get("is_percentage"):
 		display_val = f"{val * 100:.2f}%" if abs(val) < 1.0 else f"{val:.2f}%"
@@ -68,7 +84,7 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 		"value": display_val,
 		"score": score,
 		"weight": weight,
-		"pct": pct,
+		"pct": pct
 	}
 
 
@@ -124,9 +140,7 @@ def display_results(
 
 	if total_weight > 0:
 		final_pct = (total_score / total_weight) * 100
-		color = (
-			"bold green" if final_pct >= 70 else "yellow" if final_pct >= 40 else "red"
-		)
+		color = "bold green" if final_pct >= 70 else "yellow" if final_pct >= 40 else "red"
 		console.print(
 			f"\n[bold]FINAL SCORE: [/bold][{color}]{total_score:.2f}/{total_weight:.1f} ({final_pct:.1f}%)[/{color}]\n"
 		)

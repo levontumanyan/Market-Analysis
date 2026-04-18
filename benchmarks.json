@@ -3,6 +3,7 @@
 		{
 			"name": "Trailing P/E Ratio",
 			"metric": "trailingPE",
+			"type": "sigmoid",
 			"best": 8.0,
 			"worst": 100.0,
 			"weight": 2.0
@@ -10,14 +11,15 @@
 		{
 			"name": "Forward P/E Ratio",
 			"metric": "forwardPE",
+			"type": "sigmoid",
 			"best": 10.0,
 			"worst": 80.0,
 			"weight": 1.5
 		},
-
 		{
 			"name": "PEG Ratio",
 			"metric": "pegRatio",
+			"type": "sigmoid",
 			"best": 0.8,
 			"worst": 1.5,
 			"weight": 1.5
@@ -25,6 +27,7 @@
 		{
 			"name": "Price to Book",
 			"metric": "priceToBook",
+			"type": "sigmoid",
 			"best": 1.0,
 			"worst": 5.0,
 			"weight": 1.0
@@ -32,6 +35,7 @@
 		{
 			"name": "Return on Equity",
 			"metric": "returnOnEquity",
+			"type": "sigmoid",
 			"best": 0.25,
 			"worst": 0.05,
 			"weight": 1.5,
@@ -40,6 +44,7 @@
 		{
 			"name": "Profit Margin",
 			"metric": "profitMargins",
+			"type": "linear",
 			"best": 0.20,
 			"worst": 0.0,
 			"weight": 1.0,
@@ -48,13 +53,15 @@
 		{
 			"name": "Debt to Equity",
 			"metric": "debtToEquity",
-			"best": 20.0,
-			"worst": 150.0,
+			"type": "bell_curve",
+			"target": 50.0,
+			"width": 60.0,
 			"weight": 1.5
 		},
 		{
 			"name": "Current Ratio",
 			"metric": "currentRatio",
+			"type": "sigmoid",
 			"best": 2.0,
 			"worst": 0.8,
 			"weight": 1.0
@@ -62,6 +69,7 @@
 		{
 			"name": "Revenue Growth",
 			"metric": "revenueGrowth",
+			"type": "sigmoid",
 			"best": 0.20,
 			"worst": -0.05,
 			"weight": 1.0,
@@ -70,8 +78,26 @@
 		{
 			"name": "Insider Ownership",
 			"metric": "heldPercentInsiders",
+			"type": "sigmoid",
 			"best": 0.30,
 			"worst": 0.01,
+			"weight": 1.0,
+			"is_percentage": true
+		},
+		{
+			"name": "Institutional Ownership",
+			"metric": "heldPercentInstitutions",
+			"type": "sigmoid",
+			"best": 0.80,
+			"worst": 0.20,
+			"weight": 1.0,
+			"is_percentage": true
+		},
+		{
+			"name": "Healthy Dividend",
+			"metric": "dividendYield",
+			"type": "threshold",
+			"threshold": 0.02,
 			"weight": 1.0,
 			"is_percentage": true
 		}
