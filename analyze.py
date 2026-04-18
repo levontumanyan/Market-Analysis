@@ -1,6 +1,6 @@
 import json
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yfinance as yf
 from rich.console import Console
@@ -107,11 +107,15 @@ def main():
 	for ticker_symbol in tickers:
 		ticker_symbol = ticker_symbol.upper()
 		with Progress(transient=True) as progress:
-			progress.add_task(f"[green]Fetching data for {ticker_symbol}...", total=None)
+			progress.add_task(
+				f"[green]Fetching data for {ticker_symbol}...", total=None
+			)
 			try:
 				info = get_stock_data(ticker_symbol)
 			except Exception as e:
-				console.print(f"[bold red]Error fetching data for {ticker_symbol}:[/bold red] {e}")
+				console.print(
+					f"[bold red]Error fetching data for {ticker_symbol}:[/bold red] {e}"
+				)
 				continue
 
 		if not info or "symbol" not in info:
