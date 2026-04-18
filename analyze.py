@@ -1,4 +1,5 @@
 import json
+import math
 import sys
 from typing import Any, Dict, List, Optional
 
@@ -20,6 +21,30 @@ def load_benchmarks(file_path: str) -> List[Dict[str, Any]]:
 		return []
 
 
+def calculate_sigmoid_score(val: float, best: float, worst: float) -> float:
+	"""
+	Calculates a score between 0 and 1 using a sigmoid (S-curve) function.
+	The curve is centered at the midpoint between best and worst.
+	"""
+	midpoint = (best + worst) / 2
+	# Calculate k (steepness) such that 'best' gets ~0.95 and 'worst' gets ~0.05
+	# 0.95 = 1 / (1 + exp(k * (best - midpoint)))
+	# ln(1/0.95 - 1) = k * (best - midpoint)
+	# k = ln(1/19) / (best - midpoint)
+	try:
+		k = math.log(1/19) / (best - midpoint)
+	except (ZeroDivisionError, ValueError):
+		k = 0.1 # Fallback
+
+	# Sigmoid formula: 1 / (1 + exp(k * (x - midpoint)))
+	try:
+		score = 1 / (1 + math.exp(k * (val - midpoint)))
+	except OverflowError:
+		score = 1.0 if (k * (val - midpoint)) < 0 else 0.0
+		
+	return score
+
+
 def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str, Any]:
 	metric_key = benchmark["metric"]
 	val = info.get(metric_key)
@@ -30,22 +55,8 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 	if val is None or best is None or worst is None:
 		return {"status": "N/A", "value": "N/A", "score": 0, "weight": 0, "pct": 0}
 
-	# Linear Scoring Logic
-	if best > worst:  # Higher is better (e.g., ROE)
-		if val >= best:
-			pct = 1.0
-		elif val <= worst:
-			pct = 0.0
-		else:
-			pct = (val - worst) / (best - worst)
-	else:  # Lower is better (e.g., P/E)
-		if val <= best:
-			pct = 1.0
-		elif val >= worst:
-			pct = 0.0
-		else:
-			pct = 1.0 - (val - best) / (worst - best)
-
+	# Use Sigmoid Scoring
+	pct = calculate_sigmoid_score(val, best, worst)
 	score = weight * pct
 	
 	display_val = f"{val:.2f}"

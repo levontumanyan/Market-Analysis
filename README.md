@@ -20,14 +20,11 @@ make run TICKER="AAPL MSFT GOOGL"
 
 ## Configuration
 
-Benchmarks are defined in `benchmarks.json`. The system uses a **Linear Scoring Model**:
-*   **`best`**: The value that awards 100% of the weight (points).
-*   **`worst`**: The value that awards 0% of the weight (points).
-*   Values in between receive a proportional score (e.g., halfway between best and worst awards 50% points).
-*   The script automatically detects directionality:
-		*   If `best < worst`, it assumes **Lower is Better** (e.g., P/E ratio).
-		*   If `best > worst`, it assumes **Higher is Better** (e.g., Profit Margin).
-
+Benchmarks are defined in `benchmarks.json`. The system uses a **Sigmoid (S-Curve) Scoring Model**:
+*   **`best`**: The value that awards ~95% of the weight (points).
+*   **`worst`**: The value that awards ~5% of the weight (points).
+*   **Midpoint**: The value exactly between `best` and `worst` awards exactly 50% of the weight.
+*   This model is non-linear: it is highly sensitive near the center of your range but tapers off at the extremes, allowing for wide ranges without washing out meaningful differences.
 ## Architecture
 
 **Data Layer**: Python-based ingestion using `yfinance`.

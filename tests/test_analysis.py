@@ -1,30 +1,26 @@
 import json
 import pytest
-from analyze import evaluate_metric, load_benchmarks
+from analyze import evaluate_metric, load_benchmarks, calculate_sigmoid_score
 
-def test_evaluate_metric_best():
-	# Higher is better: 20 is best, 10 is worst. 25 should be 1.0 (100%)
+def test_sigmoid_math():
+	# best=10, worst=30. Midpoint is 20.
+	assert calculate_sigmoid_score(10, 10, 30) == pytest.approx(0.95, abs=0.01)
+	assert calculate_sigmoid_score(30, 10, 30) == pytest.approx(0.05, abs=0.01)
+	assert calculate_sigmoid_score(20, 10, 30) == pytest.approx(0.50, abs=0.01)
+
+def test_evaluate_metric_sigmoid_best():
+	# Higher is better: 20 is best, 10 is worst. 20 should get ~95%
 	benchmark = {"name": "Test", "metric": "roe", "best": 20, "worst": 10, "weight": 1.0}
-	info = {"roe": 25}
+	info = {"roe": 20}
 	res = evaluate_metric(info, benchmark)
-	assert res["pct"] == 1.0
-	assert res["score"] == 1.0
+	assert res["pct"] == pytest.approx(0.95, abs=0.01)
 
-def test_evaluate_metric_worst():
-	# Lower is better: 10 is best, 30 is worst. 35 should be 0.0 (0%)
+def test_evaluate_metric_sigmoid_worst():
+	# Lower is better: 10 is best, 30 is worst. 30 should get ~5%
 	benchmark = {"name": "Test", "metric": "pe", "best": 10, "worst": 30, "weight": 1.0}
-	info = {"pe": 35}
+	info = {"pe": 30}
 	res = evaluate_metric(info, benchmark)
-	assert res["pct"] == 0.0
-	assert res["score"] == 0.0
-
-def test_evaluate_metric_midpoint():
-	# Lower is better: 10 is best, 30 is worst. 20 is exactly in middle.
-	benchmark = {"name": "Test", "metric": "pe", "best": 10, "worst": 30, "weight": 2.0}
-	info = {"pe": 20}
-	res = evaluate_metric(info, benchmark)
-	assert res["pct"] == 0.5
-	assert res["score"] == 1.0 # 0.5 * 2.0 weight
+	assert res["pct"] == pytest.approx(0.05, abs=0.01)
 
 def test_evaluate_metric_na():
 	benchmark = {"name": "Test", "metric": "pe", "best": 10, "worst": 30}
@@ -35,7 +31,7 @@ def test_evaluate_metric_na():
 
 def test_evaluate_metric_percentage_display():
 	benchmark = {"name": "Test", "metric": "margin", "best": 0.2, "worst": 0.0, "is_percentage": True}
-	info = {"margin": 0.1} # 50% strength
+	info = {"margin": 0.1} # Midpoint (50%)
 	res = evaluate_metric(info, benchmark)
 	assert res["value"] == "10.00%"
 	assert res["status"] == "50%"
