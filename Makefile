@@ -1,7 +1,7 @@
-.PHONY: run lint format test clean
+.PHONY: run lint format test check setup clean
 
-# Run the analysis for a specific ticker
-# Usage: make run TICKER=MSFT
+# Run the analysis for one or more tickers
+# Usage: make run TICKER="AAPL MSFT GOOGL"
 run:
 	uv run analyze.py $(TICKER)
 

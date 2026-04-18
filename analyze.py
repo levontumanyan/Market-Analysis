@@ -1,6 +1,6 @@
 import json
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import yfinance as yf
 from rich.console import Console
@@ -84,45 +84,47 @@ def display_results(
 		final_pct = (total_score / total_weight) * 100
 		color = "green" if final_pct >= 70 else "yellow" if final_pct >= 40 else "red"
 		console.print(
-			f"\n[bold]FINAL SCORE: [/bold][bold {color}]{total_score:.1f}/{total_weight:.1f} ({final_pct:.1f}%)[/bold {color}]"
+			f"\n[bold]FINAL SCORE: [/bold][bold {color}]{total_score:.1f}/{total_weight:.1f} ({final_pct:.1f}%)[/bold {color}]\n"
 		)
 	else:
-		console.print("\n[bold red]Insufficient data to calculate score.[/bold red]")
+		console.print("\n[bold red]Insufficient data to calculate score.[/bold red]\n")
 
 
 def main():
 	if len(sys.argv) < 2:
 		console.print("[bold red]Error:[/bold red] No ticker symbol provided.")
 		console.print(
-			"[yellow]Usage:[/yellow] uv run analyze.py <TICKER> (e.g., uv run analyze.py MSFT)"
+			"[yellow]Usage:[/yellow] uv run analyze.py <TICKER1> <TICKER2> ... (e.g., uv run analyze.py AAPL MSFT)"
 		)
 		sys.exit(1)
 
-	ticker_symbol = sys.argv[1].upper()
+	tickers = sys.argv[1:]
 	benchmark_defs = load_benchmarks("benchmarks.json")
 
 	if not benchmark_defs:
 		sys.exit(1)
 
-	with Progress(transient=True) as progress:
-		progress.add_task(f"[green]Fetching data for {ticker_symbol}...", total=None)
-		try:
-			info = get_stock_data(ticker_symbol)
-		except Exception as e:
-			console.print(f"[bold red]Error fetching data:[/bold red] {e}")
-			sys.exit(1)
+	for ticker_symbol in tickers:
+		ticker_symbol = ticker_symbol.upper()
+		with Progress(transient=True) as progress:
+			progress.add_task(f"[green]Fetching data for {ticker_symbol}...", total=None)
+			try:
+				info = get_stock_data(ticker_symbol)
+			except Exception as e:
+				console.print(f"[bold red]Error fetching data for {ticker_symbol}:[/bold red] {e}")
+				continue
 
-	if not info or "symbol" not in info:
-		console.print(
-			f"[bold red]Error:[/bold red] Could not find data for {ticker_symbol}"
+		if not info or "symbol" not in info:
+			console.print(
+				f"[bold red]Error:[/bold red] Could not find data for {ticker_symbol}"
+			)
+			continue
+
+		results = [evaluate_metric(info, b) for b in benchmark_defs]
+
+		display_results(
+			ticker_symbol, info.get("longName", ticker_symbol), results, benchmark_defs
 		)
-		sys.exit(1)
-
-	results = [evaluate_metric(info, b) for b in benchmark_defs]
-
-	display_results(
-		ticker_symbol, info.get("longName", ticker_symbol), results, benchmark_defs
-	)
 
 
 if __name__ == "__main__":
