@@ -11,8 +11,6 @@ make run TICKER="AAPL MSFT GOOGL"
 
 ## Development & Automation
 
-This project uses a `Makefile` to standardize development tasks:
-
 `make run TICKER="XXX YYY"` - Run the analysis script for one or more stocks.
 `make check` - Run formatting, linting, and all tests in sequence.
 `make test` - Run the test suite (`pytest`).
@@ -22,7 +20,13 @@ This project uses a `Makefile` to standardize development tasks:
 
 ## Configuration
 
-Benchmarks are defined in `benchmarks.json`. You can modify thresholds (min/max), weights, and metrics without changing the code.
+Benchmarks are defined in `benchmarks.json`. The system uses a **Linear Scoring Model**:
+*   **`best`**: The value that awards 100% of the weight (points).
+*   **`worst`**: The value that awards 0% of the weight (points).
+*   Values in between receive a proportional score (e.g., halfway between best and worst awards 50% points).
+*   The script automatically detects directionality:
+		*   If `best < worst`, it assumes **Lower is Better** (e.g., P/E ratio).
+		*   If `best > worst`, it assumes **Higher is Better** (e.g., Profit Margin).
 
 ## Architecture
 
@@ -34,4 +38,6 @@ Benchmarks are defined in `benchmarks.json`. You can modify thresholds (min/max)
 
 - [x] Add tests and automated quality checks.
 - [x] Support passing multiple tickers to `analyze.py`.
+- [ ] better benchmarking. more continuous instead of pass fail. so that if let's say p/e is 20 that is better than 55. instead of 55 just failing it adds a lower score than a stock with lower p/e.
 - [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett).
+- [ ] add an ETF/mutual fund scanning script.

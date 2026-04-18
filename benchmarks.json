@@ -1,59 +1,68 @@
 {
 	"benchmarks": [
 		{
-			"name": "Low P/E Ratio",
+			"name": "Trailing P/E Ratio",
 			"metric": "trailingPE",
-			"max": 25.0,
+			"best": 8.0,
+			"worst": 500.0,
 			"weight": 2.0
 		},
 		{
 			"name": "Forward P/E Ratio",
 			"metric": "forwardPE",
-			"max": 20.0,
+			"best": 10.0,
+			"worst": 300.0,
 			"weight": 1.5
 		},
 		{
 			"name": "PEG Ratio",
 			"metric": "pegRatio",
-			"max": 1.2,
+			"best": 0.8,
+			"worst": 1.5,
 			"weight": 1.5
 		},
 		{
 			"name": "Price to Book",
 			"metric": "priceToBook",
-			"max": 3.0,
+			"best": 1.0,
+			"worst": 5.0,
 			"weight": 1.0
 		},
 		{
 			"name": "Return on Equity",
 			"metric": "returnOnEquity",
-			"min": 0.15,
+			"best": 0.25,
+			"worst": 0.05,
 			"weight": 1.5,
 			"is_percentage": true
 		},
 		{
 			"name": "Profit Margin",
 			"metric": "profitMargins",
-			"min": 0.10,
+			"best": 0.20,
+			"worst": 0.0,
 			"weight": 1.0,
 			"is_percentage": true
 		},
 		{
 			"name": "Debt to Equity",
 			"metric": "debtToEquity",
-			"max": 100.0,
+			"best": 20.0,
+			"worst": 150.0,
 			"weight": 1.5
 		},
 		{
 			"name": "Current Ratio",
 			"metric": "currentRatio",
-			"min": 1.0,
+			"best": 2.0,
+			"worst": 0.8,
 			"weight": 1.0
 		},
 		{
 			"name": "Revenue Growth",
 			"metric": "revenueGrowth",
-			"min": 0.05,
+			"best": 0.20,
+			"worst": -0.05,
 			"weight": 1.0,
 			"is_percentage": true
 		}
