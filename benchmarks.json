@@ -4,16 +4,17 @@
 			"name": "Trailing P/E Ratio",
 			"metric": "trailingPE",
 			"best": 8.0,
-			"worst": 500.0,
+			"worst": 100.0,
 			"weight": 2.0
 		},
 		{
 			"name": "Forward P/E Ratio",
 			"metric": "forwardPE",
 			"best": 10.0,
-			"worst": 300.0,
+			"worst": 80.0,
 			"weight": 1.5
 		},
+
 		{
 			"name": "PEG Ratio",
 			"metric": "pegRatio",
