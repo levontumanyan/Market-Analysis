@@ -1,7 +1,7 @@
 import json
 import math
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yfinance as yf
 from rich.console import Console
@@ -63,18 +63,24 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 
 	# Dispatch to the correct mathematical formula
 	if formula_type == "sigmoid":
-		pct = calculate_sigmoid_score(val, benchmark.get("best", 0), benchmark.get("worst", 100))
+		pct = calculate_sigmoid_score(
+			val, benchmark.get("best", 0), benchmark.get("worst", 100)
+		)
 	elif formula_type == "linear":
-		pct = calculate_linear_score(val, benchmark.get("best", 0), benchmark.get("worst", 100))
+		pct = calculate_linear_score(
+			val, benchmark.get("best", 0), benchmark.get("worst", 100)
+		)
 	elif formula_type == "bell_curve":
-		pct = calculate_bell_score(val, benchmark.get("target", 0), benchmark.get("width", 1))
+		pct = calculate_bell_score(
+			val, benchmark.get("target", 0), benchmark.get("width", 1)
+		)
 	elif formula_type == "threshold":
 		pct = calculate_threshold_score(val, benchmark.get("threshold", 0))
 	else:
 		pct = 0.0
 
 	score = weight * pct
-	
+
 	display_val = f"{val:.2f}"
 	if benchmark.get("is_percentage"):
 		display_val = f"{val * 100:.2f}%" if abs(val) < 1.0 else f"{val:.2f}%"
@@ -84,7 +90,7 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 		"value": display_val,
 		"score": score,
 		"weight": weight,
-		"pct": pct
+		"pct": pct,
 	}
 
 
@@ -140,7 +146,9 @@ def display_results(
 
 	if total_weight > 0:
 		final_pct = (total_score / total_weight) * 100
-		color = "bold green" if final_pct >= 70 else "yellow" if final_pct >= 40 else "red"
+		color = (
+			"bold green" if final_pct >= 70 else "yellow" if final_pct >= 40 else "red"
+		)
 		console.print(
 			f"\n[bold]FINAL SCORE: [/bold][{color}]{total_score:.2f}/{total_weight:.1f} ({final_pct:.1f}%)[/{color}]\n"
 		)
