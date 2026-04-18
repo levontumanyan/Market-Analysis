@@ -65,6 +65,14 @@
 			"worst": -0.05,
 			"weight": 1.0,
 			"is_percentage": true
+		},
+		{
+			"name": "Insider Ownership",
+			"metric": "heldPercentInsiders",
+			"best": 0.30,
+			"worst": 0.01,
+			"weight": 1.0,
+			"is_percentage": true
 		}
 	]
 }

@@ -1,7 +1,7 @@
 import json
 import math
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import yfinance as yf
 from rich.console import Console
@@ -32,16 +32,16 @@ def calculate_sigmoid_score(val: float, best: float, worst: float) -> float:
 	# ln(1/0.95 - 1) = k * (best - midpoint)
 	# k = ln(1/19) / (best - midpoint)
 	try:
-		k = math.log(1/19) / (best - midpoint)
+		k = math.log(1 / 19) / (best - midpoint)
 	except (ZeroDivisionError, ValueError):
-		k = 0.1 # Fallback
+		k = 0.1  # Fallback
 
 	# Sigmoid formula: 1 / (1 + exp(k * (x - midpoint)))
 	try:
 		score = 1 / (1 + math.exp(k * (val - midpoint)))
 	except OverflowError:
 		score = 1.0 if (k * (val - midpoint)) < 0 else 0.0
-		
+
 	return score
 
 
@@ -58,7 +58,7 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 	# Use Sigmoid Scoring
 	pct = calculate_sigmoid_score(val, best, worst)
 	score = weight * pct
-	
+
 	display_val = f"{val:.2f}"
 	if benchmark.get("is_percentage"):
 		display_val = f"{val * 100:.2f}%" if abs(val) < 1.0 else f"{val:.2f}%"
@@ -68,7 +68,7 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 		"value": display_val,
 		"score": score,
 		"weight": weight,
-		"pct": pct
+		"pct": pct,
 	}
 
 
@@ -124,7 +124,9 @@ def display_results(
 
 	if total_weight > 0:
 		final_pct = (total_score / total_weight) * 100
-		color = "bold green" if final_pct >= 70 else "yellow" if final_pct >= 40 else "red"
+		color = (
+			"bold green" if final_pct >= 70 else "yellow" if final_pct >= 40 else "red"
+		)
 		console.print(
 			f"\n[bold]FINAL SCORE: [/bold][{color}]{total_score:.2f}/{total_weight:.1f} ({final_pct:.1f}%)[/{color}]\n"
 		)

@@ -35,6 +35,7 @@ Benchmarks are defined in `benchmarks.json`. The system uses a **Sigmoid (S-Curv
 
 - [x] Add tests and automated quality checks.
 - [x] Support passing multiple tickers to `analyze.py`.
-- [ ] better benchmarking. more continuous instead of pass fail. so that if let's say p/e is 20 that is better than 55. instead of 55 just failing it adds a lower score than a stock with lower p/e.
+- [x] Implement continuous linear/sigmoid scoring instead of binary pass/fail.
+- [x] Add an inside ownership benchmark.
 - [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett).
-- [ ] add an ETF/mutual fund scanning script.
+- [ ] Add an ETF/mutual fund scanning script.
