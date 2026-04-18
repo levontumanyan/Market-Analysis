@@ -39,3 +39,5 @@ Benchmarks are defined in `benchmarks.json`. The system uses a **Sigmoid (S-Curv
 - [x] Add an inside ownership benchmark.
 - [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett).
 - [ ] Add an ETF/mutual fund scanning script.
+- [ ] Change in institutional ownerships. [something like this](https://www.nasdaq.com/market-activity/stocks/aapl/institutional-holdings)
+- [ ] change in insider ownership
