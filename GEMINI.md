@@ -4,3 +4,5 @@
 - **Consistency**: If editing an existing file, convert existing spaces to tabs unless it violates the language specification.
 
 - when running any tests or checking the program against a stock use only the available make commands.
+
+Always run python commands like this: `uv run python3 <file>.py`
