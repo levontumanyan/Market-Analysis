@@ -81,6 +81,7 @@ A binary pass/fail mechanism.
 - [x] Add institutional ownership metrics.
 - [x] add dividend in the benchmarks
 - [x] per benchmark function usage
+- [ ] implement functionality to pass it an etf/index and it checks the stocks inside it and runs scores.
 - [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
 - [ ] Add an ETF/mutual fund scanning script.
 - [ ] Change in institutional ownerships. [something like this](https://www.nasdaq.com/market-activity/stocks/aapl/institutional-holdings)
@@ -88,6 +89,8 @@ A binary pass/fail mechanism.
 - [ ] add analyst recommendations(buy/sell/hold)
 - [ ] add an AI layer, that will analyze news. sentiments.
 - [ ] create a report on a stock. maybe a separate function. the report will show metrics. important ones.
+- [ ] Add try/except around individual metric evaluation so one bad metric doesn't kill the whole report.
+- [ ] better folder structure and separation.
 
 # Issues
 
