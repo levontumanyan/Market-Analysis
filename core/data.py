@@ -22,11 +22,11 @@ def load_benchmarks() -> List[Dict[str, Any]]:
 
 @lru_cache(maxsize=100)
 def get_stock_data(ticker_symbol: str) -> Dict[str, Any]:
-	"""Fetch stock data with caching (1 hour)."""
+	"""Fetch stock data with caching (2 hour)."""
 	cache_file = CACHE_DIR / f"{ticker_symbol.upper()}.json"
 
 	# Return cache if fresh (< 1 hour)
-	if cache_file.exists() and (time.time() - cache_file.stat().st_mtime) < 3600:
+	if cache_file.exists() and (time.time() - cache_file.stat().st_mtime) < 7200:
 		try:
 			return json.loads(cache_file.read_text())
 		except Exception:

@@ -23,6 +23,16 @@ make run TICKER="AAPL MSFT GOOGL"
 
 Benchmarks are defined in `benchmarks.json`.
 
+## Weight Merging Logic
+
+The system uses a hierarchical approach to determine the weight of each metric during evaluation:
+
+1.  **Profile Overrides**: When a profile is selected (e.g., `growth`), the system first looks for the metric's weight in `profiles.json`. If the metric exists in the profile's `weights` dictionary, that value is used.
+2.  **Benchmark Defaults**: If the metric is not defined in the selected profile, the system falls back to the `weight` defined in `benchmarks.json` for that specific benchmark.
+3.  **Global Default**: If no weight is found in either file, it defaults to `1.0`.
+
+This allows for easy customization: you can define a standard weight for a metric in `benchmarks.json` and only override it in specific profiles where that metric is more or less important.
+
 **Sigmoid (S-Curve) Scoring Model**:
 
 *   **`best`**: The value that awards ~95% of the weight (points).
@@ -97,11 +107,11 @@ make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"
 - [x] per benchmark function usage
 - [x] better folder structure and separation.
 - [x] make sure if dividend yield is 0 it doesn't show N/A.
+- [x] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
 - [ ] add different sectors so that we can potentially have p/e be compared to industry.
 - [ ] data about shares outstanding. how many have been created. dilution.
   - [ ] share buyback
 - [ ] implement functionality to pass it an etf/index and it checks the stocks inside it and runs scores.
-- [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
 - [ ] Add an ETF/mutual fund scanning script.
 - [ ] Change in institutional ownerships. [something like this](https://www.nasdaq.com/market-activity/stocks/aapl/institutional-holdings)
 - [ ] change in insider ownership
