@@ -79,15 +79,14 @@ A binary pass/fail mechanism.
 - [x] Implement continuous linear/sigmoid scoring instead of binary pass/fail.
 - [x] Add an inside ownership benchmark.
 - [x] Add institutional ownership metrics.
-- [ ] add dividend in the benchmarks
-- [ ] per benchmark function usage
+- [x] add dividend in the benchmarks
+- [x] per benchmark function usage
 - [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
 - [ ] Add an ETF/mutual fund scanning script.
 - [ ] Change in institutional ownerships. [something like this](https://www.nasdaq.com/market-activity/stocks/aapl/institutional-holdings)
 - [ ] change in insider ownership
 - [ ] add analyst recommendations(buy/sell/hold)
 - [ ] add an AI layer, that will analyze news. sentiments.
-- [ ] why isn't `make format` fixing the formatting instead of just complaining about it.
 - [ ] create a report on a stock. maybe a separate function. the report will show metrics. important ones.
 
 # Issues
