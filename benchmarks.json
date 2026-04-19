@@ -21,10 +21,10 @@
 		{
 			"name": "PEG Ratio",
 			"metric": "pegRatio",
-			"type": "sigmoid",
+			"type": "bell_curve",
 			"unit": "multiplier",
-			"best": 1.0,
-			"worst": 2.5,
+			"target": 0.7,
+			"width": 0.6,
 			"weight": 1.5
 		},
 		{
@@ -111,6 +111,26 @@
 			"unit": "percentage",
 			"is_decimal": false,
 			"threshold": 2,
+			"weight": 1.0
+		},
+		{
+			"name": "Share Change (1Y)",
+			"metric": "sharesChange1Year",
+			"type": "sigmoid",
+			"unit": "percentage",
+			"is_decimal": true,
+			"best": -0.02,
+			"worst": 0.05,
+			"weight": 1.0
+		},
+		{
+			"name": "Share Change (3Y)",
+			"metric": "sharesChange3Year",
+			"type": "sigmoid",
+			"unit": "percentage",
+			"is_decimal": true,
+			"best": -0.05,
+			"worst": 0.15,
 			"weight": 1.0
 		}
 	]

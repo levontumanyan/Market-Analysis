@@ -108,6 +108,7 @@ make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"
 - [x] better folder structure and separation.
 - [x] make sure if dividend yield is 0 it doesn't show N/A.
 - [x] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
+- [ ] shares short numbers
 - [ ] add different sectors so that we can potentially have p/e be compared to industry.
 - [ ] data about shares outstanding. how many have been created. dilution.
   - [ ] share buyback
@@ -119,6 +120,7 @@ make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"
 - [ ] add an AI layer, that will analyze news. sentiments.
 - [ ] create a report on a stock. maybe a separate function. the report will show metrics. important ones.
 - [ ] Add try/except around individual metric evaluation so one bad metric doesn't kill the whole report.
+- [ ] [whalewisdom api](https://whalewisdom.com/stock/nvda)
 
 # Issues
 
@@ -137,10 +139,6 @@ The current calculation of $k$ assumes $best < worst$ (e.g., P/E ratio). However
 The `ticker.info` object often returns `0.0` or `None` for missing fundamental data (especially for P/E ratios in companies with negative earnings). 
 * **Issue:** A P/E of `0` might be interpreted by the sigmoid function as "extremely good" (since $0 < 8.0$), whereas it actually represents a lack of earnings.
 * **Improvement:** Explicitly check for `val <= 0` on metrics like `trailingPE` or `forwardPE` before scoring.
-
-## Logic for `heldPercentInsiders`
-The JSON uses a **Sigmoid** for insider ownership. 
-* **Critique:** High insider ownership is generally good, but 100% ownership often indicates a private or illiquid entity. A **Bell Curve** or a **Linear** score with a cap might more accurately represent institutional preference for "skin in the game" without total control.
 
 ## Floating Point Precision in JSON
 In `calculate_sigmoid_score`, the line `math.log(1 / 19)` is a constant. Calculating this on every function call is inefficient. 

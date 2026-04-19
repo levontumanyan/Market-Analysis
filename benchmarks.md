@@ -32,3 +32,39 @@ $$ \text{Score} = e^{-0.5 \cdot \left(\frac{\text{val} - \text{target}}{\text{wi
 - **50%**: **~0.002 (0.2%)** - Significant control/liquidity risk.
 
 By using this approach, we prioritize companies with healthy, balanced insider alignment while flagging those with either insufficient commitment or excessive control.
+
+# PEG Ratio (`pegRatio`)
+
+The PEG (Price/Earnings-to-Growth) Ratio is a key metric that balances valuation (P/E) with earnings growth.
+
+## Why use a Bell Curve?
+
+Initially, a **Sigmoid Curve** was used to score the PEG ratio. However, we've transitioned to a **Bell Curve** (Gaussian distribution) to better capture the risks associated with extreme valuation outliers.
+
+- **Suspiciously Low (< 0.3)**: A very low PEG ratio (e.g., 0.1) can be a "value trap." It often indicates that the market expects a company's recent high growth to be unsustainable, or it may be due to a one-time earnings spike.
+- **Optimal Range (0.5 – 1.0)**: This is the "sweet spot" for growth-at-a-reasonable-price (GARP) investors. A PEG of around 0.7 is often considered the ideal balance of growth and valuation.
+- **High/Overvalued (> 2.0)**: A high PEG ratio suggests you are paying significantly more for each unit of growth, indicating potential overvaluation.
+
+## Scoring Logic
+
+The scoring function uses a Gaussian curve centered on a target value:
+
+$$ \text{Score} = e^{-0.5 \cdot \left(\frac{\text{val} - \text{target}}{\text{width}}\right)^2} $$
+
+### Parameters:
+- **Target (`0.7`)**: A 0.7 PEG ratio is our "ideal" target for growth value.
+- **Width (`0.6`)**: This determines how quickly the score drops off as the ratio moves away from the ideal 0.7 mark.
+
+### Resulting Scores:
+
+| PEG Value | Bell Curve Score | Interpretation |
+| :--- | :--- | :--- |
+| **0.1** | **~61%** | Suspiciously Low (Caution/Value Trap) |
+| **0.4** | **~88%** | Excellent Value |
+| **0.7** | **100%** | The "Sweet Spot" (Ideal) |
+| **1.0** | **~88%** | Fair Value (Good) |
+| **1.5** | **~41%** | Slightly Expensive (Weak) |
+| **2.5** | **~1%** | Overvalued (Fail) |
+
+---
+**Verdict:** By using a Bell Curve, we prioritize stocks in the healthy "GARP" range while assigning lower scores to extreme outliers that may represent data errors or unsustainable business models.

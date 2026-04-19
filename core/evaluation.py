@@ -85,6 +85,11 @@ def evaluate_metric(
 	else:
 		pct = 0.0
 
+	# === SPECIAL HANDLING FOR NEGATIVE VALUATION RATIOS ===
+	# Negative P/E or PEG usually means negative earnings or growth, which is a red flag.
+	if metric_key in ["pegRatio", "trailingPE", "forwardPE"] and val < 0:
+		pct = 0.0
+
 	score = weight * pct
 
 	return {
