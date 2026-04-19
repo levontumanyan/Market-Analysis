@@ -27,6 +27,32 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 	unit = benchmark.get("unit")
 	is_decimal = benchmark.get("is_decimal", False)
 
+	# === SPECIAL HANDLING FOR INSTITUTIONAL OWNERSHIP ===
+	# Cap at 100%(sometimes exceeds can be confusing)
+	if val is not None and metric_key == "heldPercentInstitutions":
+		val = min(float(val), 1.0)
+
+	# 2. Treat explicit 0.0 as valid (especially for Dividend Yield)
+	if val is None:
+		# Check alternative keys for dividend yield
+		if metric_key in [
+			"dividendYield",
+			"trailingAnnualDividendYield",
+			"yield",
+			"trailingAnnualDividendRate",
+		]:
+			alt_keys = [
+				"dividendYield",
+				"trailingAnnualDividendYield",
+				"yield",
+				"trailingAnnualDividendRate",
+			]
+			for key in alt_keys:
+				alt_val = info.get(key)
+				if alt_val is not None:
+					val = float(alt_val)
+					break
+
 	# Handle missing or invalid data
 	if val is None or not isinstance(val, (int, float)):
 		return {

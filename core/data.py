@@ -30,20 +30,10 @@ def get_stock_data(ticker_symbol: str) -> Dict[str, Any]:
 		try:
 			return json.loads(cache_file.read_text())
 		except Exception:
-			pass  # Fall through to refetch
+			pass
 
 	ticker = yf.Ticker(ticker_symbol)
 	info = ticker.info
-
-	# Optional: Add more reliable data sources later
-	try:
-		info["trailingEps"] = (
-			ticker.earnings.get("trailingEps")
-			if hasattr(ticker, "earnings")
-			else info.get("trailingEps")
-		)
-	except Exception:
-		pass
 
 	# Save to cache
 	try:

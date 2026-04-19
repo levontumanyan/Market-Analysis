@@ -81,6 +81,11 @@ A binary pass/fail mechanism.
 - [x] Add institutional ownership metrics.
 - [x] add dividend in the benchmarks
 - [x] per benchmark function usage
+- [x] better folder structure and separation.
+- [x] make sure if dividend yield is 0 it doesn't show N/A.
+- [ ] add different sectors so that we can potentially have p/e be compared to industry.
+- [ ] data about shares outstanding. how many have been created. dilution.
+  - [ ] share buyback
 - [ ] implement functionality to pass it an etf/index and it checks the stocks inside it and runs scores.
 - [ ] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
 - [ ] Add an ETF/mutual fund scanning script.
@@ -90,7 +95,6 @@ A binary pass/fail mechanism.
 - [ ] add an AI layer, that will analyze news. sentiments.
 - [ ] create a report on a stock. maybe a separate function. the report will show metrics. important ones.
 - [ ] Add try/except around individual metric evaluation so one bad metric doesn't kill the whole report.
-- [ ] better folder structure and separation.
 
 # Issues
 
