@@ -57,9 +57,28 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 	val = info.get(metric_key)
 	weight = benchmark.get("weight", 1.0)
 	formula_type = benchmark.get("type", "sigmoid")
+	unit = benchmark.get("unit")
+	is_decimal = benchmark.get("is_decimal", False)
 
 	if val is None:
 		return {"status": "N/A", "value": "N/A", "score": 0, "weight": 0, "pct": 0}
+
+	# Precise Unit Formatting
+	if unit == "percentage":
+		if is_decimal:
+			# Converts 0.732 to 73.20%
+			display_val = f"{val * 100:.2f}%"
+		else:
+			# Leaves 0.02 as 0.02%
+			display_val = f"{val:.2f}%"
+	elif unit == "multiplier":
+		# scale 25.4 to 25.40x
+		display_val = f"{val:.2f}x"
+	elif unit == "currency":
+		# scale 150.5 to $150.50
+		display_val = f"${val:,.2f}"
+	else:
+		display_val = f"{val:.2f}"
 
 	# Dispatch to the correct mathematical formula
 	if formula_type == "sigmoid":
@@ -80,10 +99,6 @@ def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str
 		pct = 0.0
 
 	score = weight * pct
-
-	display_val = f"{val:.2f}"
-	if benchmark.get("is_percentage"):
-		display_val = f"{val * 100:.2f}%" if abs(val) < 1.0 else f"{val:.2f}%"
 
 	return {
 		"status": f"{pct * 100:.0f}%",

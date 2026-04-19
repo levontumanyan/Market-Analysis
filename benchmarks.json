@@ -4,30 +4,34 @@
 			"name": "Trailing P/E Ratio",
 			"metric": "trailingPE",
 			"type": "sigmoid",
-			"best": 8.0,
-			"worst": 100.0,
+			"unit": "multiplier",
+			"best": 15.0,
+			"worst": 50.0,
 			"weight": 2.0
 		},
 		{
 			"name": "Forward P/E Ratio",
 			"metric": "forwardPE",
 			"type": "sigmoid",
-			"best": 10.0,
-			"worst": 80.0,
+			"unit": "multiplier",
+			"best": 12.0,
+			"worst": 40.0,
 			"weight": 1.5
 		},
 		{
 			"name": "PEG Ratio",
 			"metric": "pegRatio",
 			"type": "sigmoid",
-			"best": 0.8,
-			"worst": 1.5,
+			"unit": "multiplier",
+			"best": 1.0,
+			"worst": 2.5,
 			"weight": 1.5
 		},
 		{
 			"name": "Price to Book",
 			"metric": "priceToBook",
 			"type": "sigmoid",
+			"unit": "multiplier",
 			"best": 1.0,
 			"worst": 5.0,
 			"weight": 1.0
@@ -36,24 +40,27 @@
 			"name": "Return on Equity",
 			"metric": "returnOnEquity",
 			"type": "sigmoid",
-			"best": 0.25,
+			"unit": "percentage",
+			"is_decimal": true,
+			"best": 0.20,
 			"worst": 0.05,
-			"weight": 1.5,
-			"is_percentage": true
+			"weight": 1.5
 		},
 		{
 			"name": "Profit Margin",
 			"metric": "profitMargins",
 			"type": "linear",
-			"best": 0.20,
+			"unit": "percentage",
+			"is_decimal": true,
+			"best": 0.25,
 			"worst": 0.0,
-			"weight": 1.0,
-			"is_percentage": true
+			"weight": 1.0
 		},
 		{
 			"name": "Debt to Equity",
 			"metric": "debtToEquity",
 			"type": "bell_curve",
+			"unit": "multiplier",
 			"target": 50.0,
 			"width": 60.0,
 			"weight": 1.5
@@ -62,6 +69,7 @@
 			"name": "Current Ratio",
 			"metric": "currentRatio",
 			"type": "sigmoid",
+			"unit": "multiplier",
 			"best": 2.0,
 			"worst": 0.8,
 			"weight": 1.0
@@ -70,36 +78,40 @@
 			"name": "Revenue Growth",
 			"metric": "revenueGrowth",
 			"type": "sigmoid",
-			"best": 0.20,
+			"unit": "percentage",
+			"is_decimal": true,
+			"best": 0.15,
 			"worst": -0.05,
-			"weight": 1.0,
-			"is_percentage": true
+			"weight": 1.0
 		},
 		{
 			"name": "Insider Ownership",
 			"metric": "heldPercentInsiders",
 			"type": "sigmoid",
-			"best": 0.30,
-			"worst": 0.01,
-			"weight": 1.0,
-			"is_percentage": true
+			"unit": "percentage",
+			"is_decimal": true,
+			"best": 0.10,
+			"worst": 0.0,
+			"weight": 1.0
 		},
 		{
 			"name": "Institutional Ownership",
 			"metric": "heldPercentInstitutions",
 			"type": "sigmoid",
+			"unit": "percentage",
+			"is_decimal": true,
 			"best": 0.80,
 			"worst": 0.20,
-			"weight": 1.0,
-			"is_percentage": true
+			"weight": 1.0
 		},
 		{
-			"name": "Healthy Dividend",
+			"name": "Dividend Yield",
 			"metric": "dividendYield",
 			"type": "threshold",
-			"threshold": 0.02,
-			"weight": 1.0,
-			"is_percentage": true
+			"unit": "percentage",
+			"is_decimal": false,
+			"threshold": 2,
+			"weight": 1.0
 		}
 	]
 }
