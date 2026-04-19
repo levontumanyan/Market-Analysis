@@ -49,7 +49,9 @@ def test_evaluate_metric_dispatch():
 		"width": 10,
 	}
 	info = {"d2e": 50}
-	res = evaluate_metric(info, benchmark)
+	# Provide dummy profile weights for the test
+	dummy_weights = {"d2e": 1.0}
+	res = evaluate_metric(info, benchmark, dummy_weights)
 	assert res["pct"] == 1.0
 
 	# Test Threshold
@@ -60,5 +62,7 @@ def test_evaluate_metric_dispatch():
 		"threshold": 0.02,
 	}
 	info = {"yield": 0.03}
-	res = evaluate_metric(info, benchmark)
+	# Provide dummy profile weights for the test
+	dummy_weights = {"yield": 1.0}
+	res = evaluate_metric(info, benchmark, dummy_weights)
 	assert res["pct"] == 1.0

@@ -1,9 +1,11 @@
 .PHONY: run lint format test check setup clean
 
 # Run the analysis for one or more tickers
-# Usage: make run TICKER="AAPL MSFT GOOGL"
+# Usage: make run TICKER="AAPL MSFT GOOGL" [PROFILE="growth"]
+PROFILE ?= balanced
+
 run:
-	uv run analyze.py $(TICKER)
+	uv run analyze.py $(TICKER) --profile $(PROFILE)
 
 # Run code linting and formatting checks
 lint:

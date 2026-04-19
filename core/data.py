@@ -17,7 +17,7 @@ def load_benchmarks() -> List[Dict[str, Any]]:
 			return data.get("benchmarks", [])
 	except Exception as e:
 		print(f"[ERROR] Failed to load benchmarks.json: {e}")
-		return []
+		return {"profiles": {}, "benchmarks": []}
 
 
 @lru_cache(maxsize=100)

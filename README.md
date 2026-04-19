@@ -12,6 +12,7 @@ make run TICKER="AAPL MSFT GOOGL"
 # Development & Automation
 
 `make run TICKER="XXX YYY"` - Run the analysis script for one or more stocks.
+`make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"` - Run and specify a profile.
 `make check` - Run formatting, linting, and all tests in sequence.
 `make test` - Run the test suite (`pytest`).
 `make format` - Automatically fix code formatting.
@@ -71,6 +72,19 @@ A binary pass/fail mechanism.
 **Data Layer**: Python-based ingestion using `yfinance`.
 **Logic Layer**: Functional scoring engine against user-defined benchmarks.
 **Indentation**: Strictly uses **Tabs** for all files.
+
+## Profiles
+
+Investment profiles allow you to tailor the analysis to different investment strategies. Each profile assigns different weights to various financial metrics, influencing the scoring.
+
+*   **Balanced**: (Default) A general-purpose profile aiming for a mix of growth and stability.
+*   **Growth**: Prioritizes metrics associated with rapid company expansion and future potential.
+*   **Dividend**: Focuses on metrics related to dividend payouts, yield, and financial stability for income generation.
+
+You can specify a profile when running the analysis:
+```bash
+make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"
+```
 
 # TODO
 

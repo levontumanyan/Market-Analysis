@@ -15,17 +15,21 @@ def format_display_value(val: float, unit: str | None, is_decimal: bool = False)
 		return f"{val:.2f}"
 
 
-def evaluate_metric(info: Dict[str, Any], benchmark: Dict[str, Any]) -> Dict[str, Any]:
+def evaluate_metric(
+	info: Dict[str, Any], benchmark: Dict[str, Any], profile_weights: Dict[str, float]
+) -> Dict[str, Any]:
 	"""
 	Evaluate a single metric for a stock against its benchmark definition.
 	Returns formatted result with score.
 	"""
 	metric_key = benchmark["metric"]
 	val = info.get(metric_key)
-	weight = benchmark.get("weight", 1.0)
+	default_weight = benchmark.get("weight", 1.0)
 	formula_type = benchmark.get("type", "sigmoid")
 	unit = benchmark.get("unit")
 	is_decimal = benchmark.get("is_decimal", False)
+	# Use profile weight if available, otherwise fallback to default
+	weight = profile_weights.get(metric_key, default_weight)
 
 	# === SPECIAL HANDLING FOR INSTITUTIONAL OWNERSHIP ===
 	# Cap at 100%(sometimes exceeds can be confusing)
