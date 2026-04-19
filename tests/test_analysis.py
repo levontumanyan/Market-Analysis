@@ -1,11 +1,13 @@
 import pytest
 
-from analyze import (
+from core.evaluation import evaluate_metric
+
+# Import from the new modular structure
+from core.scorers import (
 	calculate_bell_score,
 	calculate_linear_score,
 	calculate_sigmoid_score,
 	calculate_threshold_score,
-	evaluate_metric,
 )
 
 
@@ -15,19 +17,19 @@ def test_sigmoid_math():
 
 
 def test_linear_math():
-	# Higher is better: 20 best, 10 worst. 15 is 50%.
-	assert calculate_linear_score(15, 20, 10) == 0.5
-	# Lower is better: 10 best, 20 worst. 15 is 50%.
-	assert calculate_linear_score(15, 10, 20) == 0.5
+	# Higher is better: best=20, worst=10 → 15 should be 50%
+	assert calculate_linear_score(15, 20, 10) == pytest.approx(0.5)
+
+	# Lower is better: best=10, worst=20 → 15 should be 50%
+	assert calculate_linear_score(15, 10, 20) == pytest.approx(0.5)
+
 	# Clamping
 	assert calculate_linear_score(25, 20, 10) == 1.0
 	assert calculate_linear_score(5, 20, 10) == 0.0
 
 
 def test_bell_curve_math():
-	# Target 50, width 10. 50 should be 1.0
 	assert calculate_bell_score(50, 50, 10) == 1.0
-	# Should drop as we move away
 	assert calculate_bell_score(60, 50, 10) < 1.0
 	assert calculate_bell_score(40, 50, 10) < 1.0
 
@@ -38,7 +40,7 @@ def test_threshold_math():
 
 
 def test_evaluate_metric_dispatch():
-	# Test Bell Curve dispatch
+	# Test Bell Curve
 	benchmark = {
 		"name": "Debt",
 		"metric": "d2e",
@@ -50,7 +52,7 @@ def test_evaluate_metric_dispatch():
 	res = evaluate_metric(info, benchmark)
 	assert res["pct"] == 1.0
 
-	# Test Threshold dispatch
+	# Test Threshold
 	benchmark = {
 		"name": "Div",
 		"metric": "yield",
