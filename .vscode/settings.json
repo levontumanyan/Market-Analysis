@@ -6,7 +6,6 @@
 		"**/.pytest_cache": true,
 		"**/.ruff_cache": true,
 		"**/.venv": true,
-		"**/cache/": true,
 		"LICENSE": true,
 		"uv.lock": true
 	}
