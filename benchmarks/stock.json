@@ -106,10 +106,11 @@
 	{
 		"name": "Dividend Yield",
 		"metric": "dividendYield",
-		"type": "threshold",
+		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": false,
-		"threshold": 2,
+		"best": 5.0,
+		"worst": 0.0,
 		"weight": 1.0
 	},
 	{

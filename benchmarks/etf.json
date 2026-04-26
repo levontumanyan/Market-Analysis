@@ -14,9 +14,9 @@
 		"metric": "yield",
 		"type": "sigmoid",
 		"unit": "percentage",
-		"is_decimal": true,
-		"best": 0.04,
-		"worst": 0.01,
+		"is_decimal": false,
+		"best": 4.0,
+		"worst": 1.0,
 		"weight": 1.5
 	},
 	{
