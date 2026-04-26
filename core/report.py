@@ -106,12 +106,12 @@ def export_to_txt(all_results: List[Dict[str, Any]], output_path: str):
 
 	sorted_results = sorted(all_results, key=lambda x: x["score"], reverse=True)
 
-	for res in sorted_results:
-		# Temporarily hijack the display_results functionality to write to our capture console
-		# Instead of refactoring display_results to take a console (which might be cleaner later),
-		# we'll just manually recreate the visual report here for the file.
+	for i, res in enumerate(sorted_results):
+		# Add a separator between tickers, but not before the first one
+		if i > 0:
+			capture_console.print("\n")
 
-		capture_console.print(f"\n{'=' * 50}")
+		capture_console.print(f"{'=' * 50}")
 		capture_console.print(f"Analysis for {res['name']} ({res['symbol']})")
 		capture_console.print(f"{'=' * 50}")
 
@@ -131,7 +131,6 @@ def export_to_txt(all_results: List[Dict[str, Any]], output_path: str):
 
 		capture_console.print(table)
 		capture_console.print(f"FINAL SCORE: {res['score']:.2f}%")
-		capture_console.print("\n")
 
 	try:
 		with open(output_path, "w") as f:
