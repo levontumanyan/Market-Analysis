@@ -61,6 +61,8 @@ def main():
 				res["name"],
 				res["results"],
 				res["benchmark_defs"],
+				res.get("sector"),
+				res.get("industry"),
 			)
 
 	all_analysis_results = run_bulk_analysis(

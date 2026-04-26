@@ -15,6 +15,8 @@ class AssetData:
 	symbol: str
 	asset_type: AssetType = AssetType.UNKNOWN
 	name: Optional[str] = None
+	sector: Optional[str] = None
+	industry: Optional[str] = None
 	metrics: Dict[str, Any] = field(default_factory=dict)
 	raw_data: Dict[str, Any] = field(default_factory=dict)
 

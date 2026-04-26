@@ -24,6 +24,8 @@ class YFinanceProvider(BaseProvider):
 			symbol=raw_info.get("symbol", symbol),
 			asset_type=asset_type,
 			name=raw_info.get("longName", raw_info.get("shortName")),
+			sector=raw_info.get("sector"),
+			industry=raw_info.get("industry"),
 			metrics=metrics,
 			raw_data=raw_info,
 		)

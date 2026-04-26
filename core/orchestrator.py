@@ -23,7 +23,10 @@ def analyze_asset(
 		else:
 			benchmark_path = "benchmarks_stock.json"
 
-	benchmark_defs = load_benchmarks(benchmark_path)
+	# Load benchmarks with sector context for stocks
+	sector_context = asset.sector if asset.asset_type == AssetType.STOCK else None
+	benchmark_defs = load_benchmarks(benchmark_path, sector=sector_context)
+
 	if not benchmark_defs:
 		return None
 
@@ -42,6 +45,8 @@ def analyze_asset(
 	return {
 		"symbol": asset.symbol,
 		"name": asset.display_name,
+		"sector": asset.sector,
+		"industry": asset.industry,
 		"results": results,
 		"benchmark_defs": benchmark_defs,
 		"score": final_pct,

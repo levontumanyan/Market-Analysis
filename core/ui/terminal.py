@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 from rich.table import Table
@@ -21,8 +21,14 @@ def display_individual_results(
 	company_name: str,
 	results: List[Dict[str, Any]],
 	benchmark_defs: List[Dict[str, Any]],
+	sector: Optional[str] = None,
+	industry: Optional[str] = None,
 ):
-	table = Table(title=f"Analysis for {company_name} ({ticker_symbol})")
+	title = f"Analysis for {company_name} ({ticker_symbol})"
+	if sector:
+		title += f"\n[dim]{sector} | {industry}[/dim]"
+
+	table = Table(title=title)
 	table.add_column("Metric", style="cyan")
 	table.add_column("Value", justify="right")
 	table.add_column("Strength", justify="center")
