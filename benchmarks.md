@@ -22,16 +22,7 @@ $$ \text{Score} = e^{-0.5 \cdot \left(\frac{\text{val} - \text{target}}{\text{wi
 
 ### Parameters:
 - **Target (`0.15`)**: A 15% ownership level is considered the ideal balance between alignment and control.
-- **Width (`0.10`)**: This parameter determines how quickly the score decays as the value moves away from the target.
-
-### Resulting Scores:
-- **15% (Target)**: **1.00 (100%)** - Perfect alignment.
-- **10% or 20%**: **~0.88 (88%)** - Very strong signal.
-- **5% or 25%**: **~0.60 (60%)** - Good, but getting less ideal.
-- **0%**: **~0.32 (32%)** - No skin in the game.
-- **50%**: **~0.002 (0.2%)** - Significant control/liquidity risk.
-
-By using this approach, we prioritize companies with healthy, balanced insider alignment while flagging those with either insufficient commitment or excessive control.
+- **Width (`0.10`)**: Determines how quickly the score decays.
 
 # PEG Ratio (`pegRatio`)
 
@@ -39,25 +30,17 @@ The PEG (Price/Earnings-to-Growth) Ratio is a key metric that balances valuation
 
 ## Why use a Bell Curve?
 
-Initially, a **Sigmoid Curve** was used to score the PEG ratio. However, we've transitioned to a **Bell Curve** (Gaussian distribution) to better capture the risks associated with extreme valuation outliers.
+A **Bell Curve** is used to better capture the risks associated with extreme valuation outliers.
 
-- **Suspiciously Low (< 0.3)**: A very low PEG ratio (e.g., 0.1) can be a "value trap." It often indicates that the market expects a company's recent high growth to be unsustainable, or it may be due to a one-time earnings spike.
-- **Optimal Range (0.5 – 1.0)**: This is the "sweet spot" for growth-at-a-reasonable-price (GARP) investors. A PEG of around 0.7 is often considered the ideal balance of growth and valuation.
-- **High/Overvalued (> 2.0)**: A high PEG ratio suggests you are paying significantly more for each unit of growth, indicating potential overvaluation.
+- **Suspiciously Low (< 0.3)**: Can be a "value trap" or unsustainable spike.
+- **Optimal Range (0.5 – 1.0)**: The "sweet spot" for growth-at-a-reasonable-price (GARP).
+- **High/Overvalued (> 2.0)**: Suggests you are paying too much for growth.
 
-## Scoring Logic
+## Parameters:
+- **Target (`0.7`)**: Ideal target for growth value.
+- **Width (`0.6`)**: Determines how quickly the score drops off.
 
-The scoring function uses a Gaussian curve centered on a target value:
-
-$$ \text{Score} = e^{-0.5 \cdot \left(\frac{\text{val} - \text{target}}{\text{width}}\right)^2} $$
-
-### Parameters:
-- **Target (`0.7`)**: A 0.7 PEG ratio is our "ideal" target for growth value.
-- **Width (`0.6`)**: This determines how quickly the score drops off as the ratio moves away from the ideal 0.7 mark.
-
-### Resulting Scores:
-
-| PEG Value | Bell Curve Score | Interpretation |
+| PEG Value | Score | Interpretation |
 | :--- | :--- | :--- |
 | **0.1** | **~61%** | Suspiciously Low (Caution/Value Trap) |
 | **0.4** | **~88%** | Excellent Value |
@@ -66,5 +49,51 @@ $$ \text{Score} = e^{-0.5 \cdot \left(\frac{\text{val} - \text{target}}{\text{wi
 | **1.5** | **~41%** | Slightly Expensive (Weak) |
 | **2.5** | **~1%** | Overvalued (Fail) |
 
----
-**Verdict:** By using a Bell Curve, we prioritize stocks in the healthy "GARP" range while assigning lower scores to extreme outliers that may represent data errors or unsustainable business models.
+# Scoring Functions Reference
+
+The following mathematical functions are used to convert raw metrics into a standardized 0-100% score.
+
+## 1. Sigmoid Curve (`sigmoid`)
+The sigmoid function is used for "more is better" or "less is better" metrics that have a natural saturation point.
+
+- **Formula**: $ \text{Score} = \frac{1}{1 + e^{k \cdot (\text{val} - \text{midpoint})}} $
+- **Characteristics**: Smoothly transitions from 0 to 1. Great for metrics where once you hit a certain "excellent" threshold, additional improvements offer diminishing returns.
+- **Examples**:
+    - **Return on Equity (ROE)**: Higher is better, but anything over 30% is generally "excellent."
+    - **P/E Ratio**: Lower is better, but there's a limit to how cheap a quality company gets.
+
+## 2. Bell Curve (`bell_curve`)
+A Gaussian distribution used for "Goldilocks" metrics where there is an ideal central target.
+
+- **Formula**: $ \text{Score} = e^{-0.5 \cdot \left(\frac{\text{val} - \text{target}}{\text{width}}\right)^2} $
+- **Characteristics**: Penalizes values that are either too high or too low.
+- **Examples**:
+    - **Insider Ownership**: Too little means no alignment; too much means control risk.
+    - **PEG Ratio**: Too low is suspicious; too high is overvalued.
+    - **Debt to Equity**: You want some leverage for growth, but not too much to be risky.
+
+## 3. Linear Scale (`linear`)
+A simple straight-line interpolation between a `best` and `worst` value.
+
+- **Characteristics**: Consistent change in score for every unit of change in the metric.
+- **Examples**:
+    - **Profit Margins**: Useful when every percentage point of margin improvement is equally valued.
+
+## 4. Threshold (`threshold`)
+A binary pass/fail binary check.
+
+- **Characteristics**: Returns 100% if the value meets the threshold, 0% otherwise.
+- **Examples**:
+    - **Dividend Yield**: Used when you simply want to filter for companies that pay at least *X*%.
+
+# Analyst Recommendation (`recommendationMean`)
+
+The Analyst Recommendation metric represents the consensus view of Wall Street analysts, typically ranging from 1.0 (Strong Buy) to 5.0 (Sell).
+
+## Why use a Sigmoid Curve?
+
+A **Sigmoid Curve** is used for analyst recommendations because it accurately reflects the non-linear significance of consensus changes.
+
+- **Saturation at Excellence**: A "Strong Buy" (1.0) and a high "Buy" (1.5) are both extremely positive signals. The sigmoid curve stays relatively flat near the "best" value, ensuring both receive high scores without pedantic differentiation.
+- **The "Hold" Cliff**: The most significant change in investor sentiment occurs between "Buy" (2.0) and "Hold" (3.0). The sigmoid curve is steepest at its midpoint (2.5), causing the score to drop rapidly as the consensus moves toward "Hold."
+- **Diminishing Penalty**: Once a stock reaches "Underperform" (4.0) or "Sell" (5.0), it is already considered a failure from a recommendation standpoint. The curve flattens out at the "worst" end, assigning near-zero points to any score 4.0 or higher.

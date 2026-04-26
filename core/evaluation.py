@@ -70,6 +70,12 @@ def evaluate_metric(
 	# Format value for display
 	display_val = format_display_value(val, unit, is_decimal)
 
+	# If benchmark specifies a display_key, use it to prefix the value (e.g. "Buy (1.89)")
+	display_key = benchmark.get("display_key")
+	if display_key and info.get(display_key):
+		label = str(info[display_key]).replace("_", " ").title()
+		display_val = f"{label} ({display_val})"
+
 	# Calculate percentage score using the appropriate scorer
 	scorer = SCORERS.get(formula_type)
 	if not scorer:

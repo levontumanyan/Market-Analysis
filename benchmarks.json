@@ -114,6 +114,15 @@
 			"weight": 1.0
 		},
 		{
+			"name": "Analyst Recommendation",
+			"metric": "recommendationMean",
+			"display_key": "recommendationKey",
+			"type": "sigmoid",
+			"best": 1.0,
+			"worst": 4.0,
+			"weight": 1.0
+		},
+		{
 			"name": "Share Change (1Y)",
 			"metric": "sharesChange1Year",
 			"type": "sigmoid",
