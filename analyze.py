@@ -4,54 +4,14 @@ import sys
 
 from rich.console import Console
 
-from core.bulk import get_index_components, parse_ticker_file
-from core.data import get_stock_data, load_benchmarks
-from core.display import display_results
-from core.evaluation import evaluate_metric
-from core.profiles import get_profile_weights
-from core.report import display_summary_table, export_to_csv, export_to_txt
-from core.schema import AssetType
+from core.analysis.indices import get_index_components
+from core.io.parsers import parse_ticker_file
+from core.orchestrator import run_bulk_analysis
+from core.reporting.csv_reporter import CSVReporter
+from core.reporting.txt_reporter import TXTReporter
+from core.ui.terminal import display_individual_results, display_summary_table
 
 console = Console()
-
-
-def analyze_asset(symbol: str, profile: str, benchmark_path: str | None = None):
-	"""Analyze a single asset and return the results and score."""
-	asset = get_stock_data(symbol)
-	if not asset:
-		return None
-
-	# Determine benchmark file based on asset type if not explicitly provided
-	if not benchmark_path:
-		if asset.asset_type == AssetType.ETF:
-			benchmark_path = "benchmarks_etf.json"
-		else:
-			benchmark_path = "benchmarks_stock.json"
-
-	benchmark_defs = load_benchmarks(benchmark_path)
-	if not benchmark_defs:
-		return None
-
-	profile_weights = get_profile_weights(profile)
-	results = [evaluate_metric(asset, b, profile_weights) for b in benchmark_defs]
-
-	# Calculate total score
-	total_score = 0.0
-	max_score = 0.0
-	for res in results:
-		total_score += res["score"]
-		max_score += res["weight"]
-
-	final_pct = (total_score / max_score * 100) if max_score > 0 else 0.0
-
-	return {
-		"symbol": asset.symbol,
-		"name": asset.display_name,
-		"results": results,
-		"benchmark_defs": benchmark_defs,
-		"score": final_pct,
-		"asset_type": asset.asset_type,
-	}
 
 
 def main():
@@ -89,33 +49,23 @@ def main():
 		sys.exit(1)
 
 	# 2. Process Tickers
-	all_analysis_results = []
 	is_bulk = len(tickers) > 1
-
 	console.print(
 		f"[bold green]Analyzing {len(tickers)} asset(s) with [cyan]{args.profile.upper()}[/cyan] profile[/bold green]"
 	)
 
-	for ticker in tickers:
-		ticker = ticker.upper().strip()
+	def progress_callback(res):
 		if not is_bulk:
-			console.print(f"\n[bold green]Analyzing {ticker}...[/bold green]")
+			display_individual_results(
+				res["symbol"],
+				res["name"],
+				res["results"],
+				res["benchmark_defs"],
+			)
 
-		try:
-			res = analyze_asset(ticker, args.profile, args.benchmarks)
-			if res:
-				all_analysis_results.append(res)
-				if not is_bulk:
-					display_results(
-						res["symbol"],
-						res["name"],
-						res["results"],
-						res["benchmark_defs"],
-					)
-			else:
-				console.print(f"[red]Failed to analyze {ticker}[/red]")
-		except Exception as e:
-			console.print(f"[bold red]Error analyzing {ticker}:[/bold red] {e}")
+	all_analysis_results = run_bulk_analysis(
+		tickers, args.profile, args.benchmarks, progress_callback
+	)
 
 	# 3. Bulk Summary & Export
 	if is_bulk and all_analysis_results:
@@ -128,15 +78,17 @@ def main():
 			os.makedirs(reports_dir)
 
 		export_path = os.path.join(reports_dir, args.export)
-
 		ext = os.path.splitext(args.export)[1].lower()
+
 		if ext == ".csv":
-			export_to_csv(all_analysis_results, export_path)
+			reporter = CSVReporter()
 		elif ext == ".txt":
-			export_to_txt(all_analysis_results, export_path)
+			reporter = TXTReporter()
 		else:
 			# Default to CSV if extension is unrecognized
-			export_to_csv(all_analysis_results, export_path)
+			reporter = CSVReporter()
+
+		reporter.export(all_analysis_results, export_path)
 
 
 if __name__ == "__main__":

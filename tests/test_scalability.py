@@ -1,5 +1,5 @@
-from analyze import analyze_asset
-from core.bulk import parse_ticker_file
+from core.io.parsers import parse_ticker_file
+from core.orchestrator import analyze_asset
 from core.providers.yf_provider import YFinanceProvider
 from core.schema import AssetData, AssetType
 
@@ -7,17 +7,19 @@ from core.schema import AssetData, AssetType
 def test_analyze_asset_routing(mocker):
 	# Mock get_stock_data to return an ETF
 	etf_asset = AssetData(symbol="SPY", asset_type=AssetType.ETF)
-	mocker.patch("analyze.get_stock_data", return_value=etf_asset)
+	mocker.patch("core.orchestrator.get_stock_data", return_value=etf_asset)
 
 	# Mock load_benchmarks and get_profile_weights
 	mocker.patch(
-		"analyze.load_benchmarks",
+		"core.orchestrator.load_benchmarks",
 		return_value=[
 			{"metric": "test", "weight": 1.0, "type": "threshold", "threshold": 0}
 		],
 	)
-	mocker.patch("analyze.get_profile_weights", return_value={"test": 1.0})
-	mocker.patch("analyze.evaluate_metric", return_value={"score": 1.0, "weight": 1.0})
+	mocker.patch("core.orchestrator.get_profile_weights", return_value={"test": 1.0})
+	mocker.patch(
+		"core.orchestrator.evaluate_metric", return_value={"score": 1.0, "weight": 1.0}
+	)
 
 	result = analyze_asset("SPY", "balanced")
 	assert result["asset_type"] == AssetType.ETF

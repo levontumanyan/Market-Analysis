@@ -16,7 +16,7 @@ def get_color_for_pct(pct: float) -> str:
 	return "red"
 
 
-def display_results(
+def display_individual_results(
 	ticker_symbol: str,
 	company_name: str,
 	results: List[Dict[str, Any]],
@@ -59,3 +59,39 @@ def display_results(
 		)
 	else:
 		console.print("\n[bold red]Insufficient data to calculate score.[/bold red]\n")
+
+
+def display_summary_table(all_results: List[Dict[str, Any]]):
+	"""
+	Display a summary table of all analyzed assets.
+	"""
+	table = Table(title="Analysis Summary")
+	table.add_column("Symbol", style="cyan")
+	table.add_column("Name", style="white")
+	table.add_column("Score", justify="right", style="green")
+	table.add_column("Verdict", style="bold")
+
+	# Sort by score descending
+	sorted_results = sorted(all_results, key=lambda x: x["score"], reverse=True)
+
+	for res in sorted_results:
+		score = res["score"]
+		verdict = (
+			"Strong Buy"
+			if score > 80
+			else "Buy"
+			if score > 65
+			else "Hold"
+			if score > 40
+			else "Avoid"
+		)
+		color = "green" if score > 65 else "yellow" if score > 40 else "red"
+
+		table.add_row(
+			res["symbol"],
+			res["name"][:30],
+			f"[{color}]{score:.1f}%[/{color}]",
+			f"[{color}]{verdict}[/{color}]",
+		)
+
+	console.print(table)

@@ -1,19 +1,10 @@
 from typing import Any, Dict
 
+from core.analysis.preprocessing import postprocess_score, preprocess_metric_value
+from core.ui.formatters import format_display_value
+
 from .schema import AssetData
 from .scorers import SCORERS
-
-
-def format_display_value(val: float, unit: str | None, is_decimal: bool = False) -> str:
-	"""Format the value for human-readable display."""
-	if unit == "percentage":
-		return f"{val * 100:.2f}%" if is_decimal else f"{val:.2f}%"
-	elif unit == "multiplier":
-		return f"{val:.2f}x"
-	elif unit == "currency":
-		return f"${val:,.2f}"
-	else:
-		return f"{val:.2f}"
 
 
 def evaluate_metric(
@@ -24,42 +15,20 @@ def evaluate_metric(
 	Returns formatted result with score.
 	"""
 	metric_key = benchmark["metric"]
-	val = asset.get(metric_key)
+	raw_val = asset.get(metric_key)
 	default_weight = benchmark.get("weight", 1.0)
 	formula_type = benchmark.get("type", "sigmoid")
 	unit = benchmark.get("unit")
 	is_decimal = benchmark.get("is_decimal", False)
+
 	# Use profile weight if available, otherwise fallback to default
 	weight = profile_weights.get(metric_key, default_weight)
 
-	# === SPECIAL HANDLING FOR INSTITUTIONAL OWNERSHIP ===
-	# Cap at 100%(sometimes exceeds can be confusing)
-	if val is not None and metric_key == "heldPercentInstitutions":
-		val = min(float(val), 1.0)
-
-	# 2. Treat explicit 0.0 as valid (especially for Dividend Yield)
-	if val is None:
-		# Check alternative keys for dividend yield
-		if metric_key in [
-			"dividendYield",
-			"trailingAnnualDividendYield",
-			"yield",
-			"trailingAnnualDividendRate",
-		]:
-			alt_keys = [
-				"dividendYield",
-				"trailingAnnualDividendYield",
-				"yield",
-				"trailingAnnualDividendRate",
-			]
-			for key in alt_keys:
-				alt_val = asset.get(key)
-				if alt_val is not None:
-					val = float(alt_val)
-					break
+	# Pre-process the value (normalization, special fallbacks)
+	val = preprocess_metric_value(metric_key, raw_val, asset)
 
 	# Handle missing or invalid data
-	if val is None or not isinstance(val, (int, float)):
+	if val is None:
 		return {
 			"name": benchmark["name"],
 			"status": "N/A",
@@ -93,10 +62,8 @@ def evaluate_metric(
 	else:
 		pct = 0.0
 
-	# === SPECIAL HANDLING FOR NEGATIVE VALUATION RATIOS ===
-	# Negative P/E or PEG usually means negative earnings or growth, which is a red flag.
-	if metric_key in ["pegRatio", "trailingPE", "forwardPE"] and val < 0:
-		pct = 0.0
+	# Post-process score (overrides for specific conditions like negative P/E)
+	pct = postprocess_score(metric_key, val, pct)
 
 	score = weight * pct
 
