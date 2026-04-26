@@ -42,6 +42,9 @@ def test_format_display_value():
 	assert format_display_value(1.234, None) == "1.23"
 
 
-def test_get_index_components(mocker):
-	# Since it currently just returns the ticker, we test that behavior
-	assert get_index_components("SPY") == ["SPY"]
+def test_get_index_components():
+	# Test that it returns a list of components for a known ETF
+	components = get_index_components("SPY")
+	assert isinstance(components, list)
+	assert len(components) > 1
+	assert "AAPL" in components or "MSFT" in components or "NVDA" in components
