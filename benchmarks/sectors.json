@@ -7,6 +7,88 @@
 		"forwardPE": {
 			"best": 20.0,
 			"worst": 50.0
+		},
+		"enterpriseToEbitda": {
+			"best": 20.0,
+			"worst": 45.0
+		},
+		"ebitdaMargins": {
+			"best": 0.40,
+			"worst": 0.15
+		}
+	},
+	"Basic Materials": {
+		"trailingPE": {
+			"best": 10.0,
+			"worst": 25.0
+		},
+		"enterpriseToEbitda": {
+			"best": 6.0,
+			"worst": 15.0
+		},
+		"ebitdaMargins": {
+			"best": 0.35,
+			"worst": 0.10
+		},
+		"dividendYield": {
+			"best": 5.0,
+			"worst": 1.0
+		}
+	},
+	"Healthcare": {
+		"trailingPE": {
+			"best": 15.0,
+			"worst": 35.0
+		},
+		"enterpriseToEbitda": {
+			"best": 12.0,
+			"worst": 22.0
+		},
+		"ebitdaMargins": {
+			"best": 0.25,
+			"worst": 0.10
+		}
+	},
+	"Consumer Defensive": {
+		"trailingPE": {
+			"best": 15.0,
+			"worst": 25.0
+		},
+		"enterpriseToEbitda": {
+			"best": 10.0,
+			"worst": 18.0
+		},
+		"ebitdaMargins": {
+			"best": 0.20,
+			"worst": 0.08
+		}
+	},
+	"Financial Services": {
+		"trailingPE": {
+			"best": 10.0,
+			"worst": 18.0
+		},
+		"priceToBook": {
+			"best": 1.0,
+			"worst": 2.5
+		},
+		"returnOnEquity": {
+			"best": 0.15,
+			"worst": 0.05
+		}
+	},
+	"Utilities": {
+		"enterpriseToEbitda": {
+			"best": 10.0,
+			"worst": 20.0
+		},
+		"ebitdaMargins": {
+			"best": 0.40,
+			"worst": 0.20
+		},
+		"debtToEquity": {
+			"target": 100.0,
+			"width": 80.0
 		}
 	},
 	"Energy": {
@@ -21,6 +103,10 @@
 		"profitMargins": {
 			"best": 0.10,
 			"worst": 0.0
+		},
+		"enterpriseToEbitda": {
+			"best": 5.0,
+			"worst": 12.0
 		}
 	},
 	"Real Estate": {
