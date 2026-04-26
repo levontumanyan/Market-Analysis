@@ -45,25 +45,52 @@ def display_summary_table(all_results: List[Dict[str, Any]]):
 
 
 def export_to_csv(all_results: List[Dict[str, Any]], output_path: str):
-	"""Export full results to a CSV file."""
+	"""Export full results to a CSV file including individual benchmark details."""
 	if not all_results:
 		return
 
-	# Extract all unique metric keys for headers
-	headers = ["Symbol", "Name", "Total Score"]
+	# 1. Determine all unique benchmark names across all results
+	benchmark_names = []
+	for res in all_results:
+		for metric in res.get("results", []):
+			name = metric["name"]
+			if name not in benchmark_names:
+				benchmark_names.append(name)
+
+	# 2. Build Headers
+	headers = ["Symbol", "Name", "Asset Type", "Total Score (%)"]
+	for name in benchmark_names:
+		headers.append(f"{name} (Value)")
+		headers.append(f"{name} (Strength %)")
 
 	try:
 		with open(output_path, "w", newline="") as f:
 			writer = csv.DictWriter(f, fieldnames=headers)
 			writer.writeheader()
+
 			for res in all_results:
-				writer.writerow(
-					{
-						"Symbol": res["symbol"],
-						"Name": res["name"],
-						"Total Score": f"{res['score']:.2f}%",
-					}
-				)
+				row = {
+					"Symbol": res["symbol"],
+					"Name": res["name"],
+					"Asset Type": str(res["asset_type"].value),
+					"Total Score (%)": f"{res['score']:.2f}",
+				}
+
+				# Map metric results to columns
+				metric_map = {m["name"]: m for m in res.get("results", [])}
+				for name in benchmark_names:
+					metric_data = metric_map.get(name)
+					if metric_data:
+						row[f"{name} (Value)"] = metric_data["value"]
+						row[f"{name} (Strength %)"] = metric_data["status"].replace(
+							"%", ""
+						)
+					else:
+						row[f"{name} (Value)"] = "N/A"
+						row[f"{name} (Strength %)"] = "N/A"
+
+				writer.writerow(row)
+
 		console.print(f"[bold green]Results exported to {output_path}[/bold green]")
 	except Exception as e:
 		console.print(f"[bold red]Failed to export CSV: {e}[/bold red]")

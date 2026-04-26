@@ -61,6 +61,7 @@ def evaluate_metric(
 	# Handle missing or invalid data
 	if val is None or not isinstance(val, (int, float)):
 		return {
+			"name": benchmark["name"],
 			"status": "N/A",
 			"value": "N/A",
 			"score": 0.0,
@@ -100,6 +101,7 @@ def evaluate_metric(
 	score = weight * pct
 
 	return {
+		"name": benchmark["name"],
 		"status": f"{pct * 100:.0f}%",
 		"value": display_val,
 		"score": score,
