@@ -27,4 +27,5 @@
 ## Testing & Validation
 - **Test Suite**: Use `make test` to validate changes. 
 - **Requirement**: ALWAYS add comprehensive tests for new functionality and major refactorings. Every new function should have a corresponding test case.
+- **Coverage Target**: Maintain a minimum overall test coverage of **80%**. Use `uv run pytest --cov=core` to verify.
 - **Validation**: When adding or modifying scoring functions in `core/scorers.py`, always verify the output against the expected curve documented in `benchmarks.md`.

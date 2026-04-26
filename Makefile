@@ -29,8 +29,12 @@ format:
 test:
 	uv run pytest
 
+# Run tests with coverage report
+coverage:
+	uv run pytest --cov=core --cov-report=term-missing
+
 # Comprehensive check: format, lint, and test
-check: format lint test
+check: format lint test coverage
 
 # Setup git hooks
 setup:
