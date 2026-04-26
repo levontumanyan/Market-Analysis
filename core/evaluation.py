@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from .schema import AssetData
 from .scorers import SCORERS
 
 
@@ -16,14 +17,14 @@ def format_display_value(val: float, unit: str | None, is_decimal: bool = False)
 
 
 def evaluate_metric(
-	info: Dict[str, Any], benchmark: Dict[str, Any], profile_weights: Dict[str, float]
+	asset: AssetData, benchmark: Dict[str, Any], profile_weights: Dict[str, float]
 ) -> Dict[str, Any]:
 	"""
-	Evaluate a single metric for a stock against its benchmark definition.
+	Evaluate a single metric for an asset against its benchmark definition.
 	Returns formatted result with score.
 	"""
 	metric_key = benchmark["metric"]
-	val = info.get(metric_key)
+	val = asset.get(metric_key)
 	default_weight = benchmark.get("weight", 1.0)
 	formula_type = benchmark.get("type", "sigmoid")
 	unit = benchmark.get("unit")
@@ -52,7 +53,7 @@ def evaluate_metric(
 				"trailingAnnualDividendRate",
 			]
 			for key in alt_keys:
-				alt_val = info.get(key)
+				alt_val = asset.get(key)
 				if alt_val is not None:
 					val = float(alt_val)
 					break
@@ -72,8 +73,8 @@ def evaluate_metric(
 
 	# If benchmark specifies a display_key, use it to prefix the value (e.g. "Buy (1.89)")
 	display_key = benchmark.get("display_key")
-	if display_key and info.get(display_key):
-		label = str(info[display_key]).replace("_", " ").title()
+	if display_key and asset.get(display_key):
+		label = str(asset.get(display_key)).replace("_", " ").title()
 		display_val = f"{label} ({display_val})"
 
 	# Calculate percentage score using the appropriate scorer

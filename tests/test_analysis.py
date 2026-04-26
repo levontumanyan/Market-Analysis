@@ -1,6 +1,7 @@
 import pytest
 
 from core.evaluation import evaluate_metric
+from core.schema import AssetData, AssetType
 
 # Import from the new modular structure
 from core.scorers import (
@@ -48,10 +49,10 @@ def test_evaluate_metric_dispatch():
 		"target": 50,
 		"width": 10,
 	}
-	info = {"d2e": 50}
+	asset = AssetData(symbol="TEST", asset_type=AssetType.STOCK, metrics={"d2e": 50})
 	# Provide dummy profile weights for the test
 	dummy_weights = {"d2e": 1.0}
-	res = evaluate_metric(info, benchmark, dummy_weights)
+	res = evaluate_metric(asset, benchmark, dummy_weights)
 	assert res["pct"] == 1.0
 
 	# Test Threshold
@@ -61,8 +62,10 @@ def test_evaluate_metric_dispatch():
 		"type": "threshold",
 		"threshold": 0.02,
 	}
-	info = {"yield": 0.03}
+	asset = AssetData(
+		symbol="TEST", asset_type=AssetType.STOCK, metrics={"yield": 0.03}
+	)
 	# Provide dummy profile weights for the test
 	dummy_weights = {"yield": 1.0}
-	res = evaluate_metric(info, benchmark, dummy_weights)
+	res = evaluate_metric(asset, benchmark, dummy_weights)
 	assert res["pct"] == 1.0

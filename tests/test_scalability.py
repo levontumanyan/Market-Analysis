@@ -1,0 +1,84 @@
+from analyze import analyze_asset
+from core.bulk import parse_ticker_file
+from core.providers.yf_provider import YFinanceProvider
+from core.schema import AssetData, AssetType
+
+
+def test_analyze_asset_routing(mocker):
+	# Mock get_stock_data to return an ETF
+	etf_asset = AssetData(symbol="SPY", asset_type=AssetType.ETF)
+	mocker.patch("analyze.get_stock_data", return_value=etf_asset)
+
+	# Mock load_benchmarks and get_profile_weights
+	mocker.patch(
+		"analyze.load_benchmarks",
+		return_value=[
+			{"metric": "test", "weight": 1.0, "type": "threshold", "threshold": 0}
+		],
+	)
+	mocker.patch("analyze.get_profile_weights", return_value={"test": 1.0})
+	mocker.patch("analyze.evaluate_metric", return_value={"score": 1.0, "weight": 1.0})
+
+	result = analyze_asset("SPY", "balanced")
+	assert result["asset_type"] == AssetType.ETF
+	assert result["symbol"] == "SPY"
+
+
+def test_asset_data_schema():
+	asset = AssetData(
+		symbol="AAPL",
+		asset_type=AssetType.STOCK,
+		name="Apple Inc.",
+		metrics={"pe": 30},
+		raw_data={"sector": "Technology"},
+	)
+	assert asset.symbol == "AAPL"
+	assert asset.get("pe") == 30
+	assert asset.get("sector") == "Technology"
+	assert asset.get("non_existent", "default") == "default"
+	assert asset.display_name == "Apple Inc."
+
+
+def test_asset_data_default_display_name():
+	asset = AssetData(symbol="MSFT")
+	assert asset.display_name == "MSFT"
+
+
+def test_yf_provider_mapping(mocker):
+	mock_raw_data = {
+		"symbol": "SPY",
+		"quoteType": "ETF",
+		"shortName": "SPDR S&P 500 ETF Trust",
+		"trailingPE": 25.0,
+		"netExpenseRatio": 0.0009,
+	}
+	mocker.patch("core.providers.yf_provider.get_yf_data", return_value=mock_raw_data)
+
+	provider = YFinanceProvider()
+	asset = provider.get_data("SPY")
+
+	assert asset is not None
+	assert asset.symbol == "SPY"
+	assert asset.asset_type == AssetType.ETF
+	assert asset.metrics["trailingPE"] == 25.0
+	assert asset.metrics["netExpenseRatio"] == 0.0009
+
+
+def test_parse_ticker_file_txt(tmp_path):
+	d = tmp_path / "subdir"
+	d.mkdir()
+	p = d / "tickers.txt"
+	p.write_text("AAPL\nMSFT\n\n# Comment\nGOOGL")
+
+	tickers = parse_ticker_file(str(p))
+	assert tickers == ["AAPL", "MSFT", "GOOGL"]
+
+
+def test_parse_ticker_file_csv(tmp_path):
+	d = tmp_path / "subdir"
+	d.mkdir()
+	p = d / "tickers.csv"
+	p.write_text("AAPL,Apple\nMSFT,Microsoft")
+
+	tickers = parse_ticker_file(str(p))
+	assert tickers == ["AAPL", "MSFT"]
