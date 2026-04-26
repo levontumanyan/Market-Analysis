@@ -34,21 +34,17 @@ def get_fmp_data(ticker: str) -> Dict[str, Any]:
 	data = {}
 
 	# Endpoints we need for fundamentals
+	# Reduced to 3 calls to save API quota
 	endpoints = {
 		"profile": f"{BASE_URL}/profile/{ticker}",
 		"key_metrics": f"{BASE_URL}/key-metrics/{ticker}?period=annual&limit=1",
 		"ratios": f"{BASE_URL}/ratios/{ticker}?period=annual&limit=1",
-		"growth": f"{BASE_URL}/financial-growth/{ticker}?period=annual&limit=1",
-		"quote": f"{BASE_URL}/quote/{ticker}",
 	}
 
 	try:
+		params = {"apikey": FMP_API_KEY} if FMP_API_KEY else {}
 		for key, url in endpoints.items():
-			response = requests.get(
-				f"{url}&apikey={FMP_API_KEY}"
-				if "?" in url
-				else f"{url}?apikey={FMP_API_KEY}"
-			)
+			response = requests.get(url, params=params)
 			if response.status_code == 200:
 				res_json = response.json()
 				if res_json and isinstance(res_json, list):

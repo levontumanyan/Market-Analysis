@@ -100,6 +100,9 @@ make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"
 
 # TODO
 
+- [ ] add analyst recommendations(buy/sell/hold)
+- [ ] shares short numbers
+- [ ] human company speech to ticker
 - [x] Add tests and automated quality checks.
 - [x] Support passing multiple tickers to `analyze.py`.
 - [x] Implement continuous linear/sigmoid scoring instead of binary pass/fail.
@@ -110,7 +113,6 @@ make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"
 - [x] better folder structure and separation.
 - [x] make sure if dividend yield is 0 it doesn't show N/A.
 - [x] Implement scoring profiles (Risky, Conservative, Graham, Buffett, dividend).
-- [ ] shares short numbers
 - [ ] add different sectors so that we can potentially have p/e be compared to industry.
 - [ ] data about shares outstanding. how many have been created. dilution.
   - [ ] share buyback
@@ -118,7 +120,6 @@ make run TICKER="AAPL MSFT GOOGL" PROFILE="growth"
 - [ ] Add an ETF/mutual fund scanning script.
 - [ ] Change in institutional ownerships. [something like this](https://www.nasdaq.com/market-activity/stocks/aapl/institutional-holdings)
 - [ ] change in insider ownership
-- [ ] add analyst recommendations(buy/sell/hold)
 - [ ] add an AI layer, that will analyze news. sentiments.
 - [ ] create a report on a stock. maybe a separate function. the report will show metrics. important ones.
 - [ ] Add try/except around individual metric evaluation so one bad metric doesn't kill the whole report.
