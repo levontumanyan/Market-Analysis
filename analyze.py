@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 
 from rich.console import Console
@@ -69,7 +70,7 @@ def main():
 		help="Investment profile to use",
 	)
 	parser.add_argument(
-		"-e", "--export", help="Export results to a CSV file (provide path)"
+		"-e", "--export", help="Export results to a CSV file (e.g., report.csv)"
 	)
 	args = parser.parse_args()
 
@@ -119,7 +120,13 @@ def main():
 		display_summary_table(all_analysis_results)
 
 	if args.export and all_analysis_results:
-		export_to_csv(all_analysis_results, args.export)
+		# Ensure reports directory exists
+		reports_dir = "reports"
+		if not os.path.exists(reports_dir):
+			os.makedirs(reports_dir)
+
+		export_path = os.path.join(reports_dir, args.export)
+		export_to_csv(all_analysis_results, export_path)
 
 
 if __name__ == "__main__":
