@@ -22,7 +22,7 @@ make run TICKER="AAPL MSFT GOOGL"
 # Configuration
 
 - Benchmarks are defined in `benchmarks.json`.
-- **API Keys**: Ensure `FMP_API_KEY` is present in the local `.env` file for full functionality.
+- **Data Source**: Uses Yahoo Finance as the primary data source.
 
 
 ## Weight Merging Logic

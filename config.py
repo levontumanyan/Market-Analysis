@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -9,7 +8,4 @@ load_dotenv()
 ROOT_DIR = Path(__file__).parent
 BENCHMARKS_PATH = ROOT_DIR / "benchmarks.json"
 CACHE_DIR = ROOT_DIR / "cache" / "yfinance"
-FMP_CACHE_DIR = ROOT_DIR / "cache" / "fmp"
-
-# API Keys
-FMP_API_KEY = os.getenv("FMP_API_KEY")
+PROFILES_PATH = ROOT_DIR / "profiles.json"

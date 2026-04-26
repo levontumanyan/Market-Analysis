@@ -24,14 +24,6 @@ test:
 # Comprehensive check: format, lint, and test
 check: format lint test
 
-# Compare data sources from cache
-compare:
-	uv run python3 scripts/compare_sources.py
-
-# Debug FMP API permissions
-debug-fmp:
-	uv run python3 scripts/debug_fmp.py
-
 # Setup git hooks
 setup:
 	cp scripts/setup_hooks.sh .git/hooks/pre-commit
