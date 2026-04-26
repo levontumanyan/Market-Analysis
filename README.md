@@ -94,13 +94,16 @@ The project follows a modular, functional architecture designed for high testabi
 
 # TODO
 
-- [ ] Add analyst recommendations (buy/sell/hold)
-- [x] Shares short numbers
+- [ ] Add an AI layer for LLM-based qualitative synthesis and sentiment analysis.
+- [ ] Analyst Recommendations: Implementing buy/sell/hold synthesis.
+- [ ] Human Language Ticker Search: Allowing "What's the status of Apple?" instead of just AAPL.
 - [ ] Human company speech to ticker
+- [ ] Advanced Sentiment Analysis: Adding an AI layer for qualitative news synthesis.
+- [x] Add analyst recommendations (buy/sell/hold)
+- [x] Shares short numbers
 - [x] Add tests and automated quality checks.
 - [x] Support passing multiple tickers to `analyze.py`.
 - [x] Implement continuous linear/sigmoid scoring.
 - [x] Support ETF/Index analysis.
 - [x] Implement bulk reporting and CSV export.
 - [x] Add different sectors for industry comparisons.
-- [ ] Add an AI layer for LLM-based qualitative synthesis and sentiment analysis.
