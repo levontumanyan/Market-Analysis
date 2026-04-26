@@ -20,6 +20,9 @@ YF_METRIC_MAP = {
 	"recommendationKey": "recommendationKey",
 	"sharesChange1Year": "sharesChange1Year",
 	"sharesChange3Year": "sharesChange3Year",
+	"shortPercentOfFloat": "shortPercentOfFloat",
+	"shortRatio": "shortRatio",
+	"sharesShort": "sharesShort",
 }
 
 

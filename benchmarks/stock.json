@@ -140,5 +140,24 @@
 		"best": -0.05,
 		"worst": 0.15,
 		"weight": 1.0
+	},
+	{
+		"name": "Short % of Float",
+		"metric": "shortPercentOfFloat",
+		"type": "sigmoid",
+		"unit": "percentage",
+		"is_decimal": true,
+		"best": 0.02,
+		"worst": 0.15,
+		"weight": 1.0
+	},
+	{
+		"name": "Short Ratio",
+		"metric": "shortRatio",
+		"type": "sigmoid",
+		"unit": "multiplier",
+		"best": 1.5,
+		"worst": 8.0,
+		"weight": 1.0
 	}
 ]

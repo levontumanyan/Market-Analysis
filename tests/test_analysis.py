@@ -69,3 +69,27 @@ def test_evaluate_metric_dispatch():
 	dummy_weights = {"yield": 1.0}
 	res = evaluate_metric(asset, benchmark, dummy_weights)
 	assert res["pct"] == 1.0
+
+
+def test_short_interest_scoring():
+	# Test high short interest (should be low strength)
+	benchmark = {
+		"name": "Short %",
+		"metric": "shortPercentOfFloat",
+		"type": "sigmoid",
+		"best": 0.02,
+		"worst": 0.15,
+	}
+	# 15% short interest should be near 'worst' (close to 0 strength)
+	asset = AssetData(
+		symbol="TEST", asset_type=AssetType.STOCK, metrics={"shortPercentOfFloat": 0.15}
+	)
+	res = evaluate_metric(asset, benchmark, {"shortPercentOfFloat": 1.0})
+	assert res["pct"] < 0.1  # Very low strength
+
+	# Test low short interest (should be high strength)
+	asset = AssetData(
+		symbol="TEST", asset_type=AssetType.STOCK, metrics={"shortPercentOfFloat": 0.02}
+	)
+	res = evaluate_metric(asset, benchmark, {"shortPercentOfFloat": 1.0})
+	assert res["pct"] > 0.9  # Very high strength
