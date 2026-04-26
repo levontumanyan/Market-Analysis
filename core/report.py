@@ -1,4 +1,5 @@
 import csv
+import io
 from typing import Any, Dict, List
 
 from rich.console import Console
@@ -45,7 +46,7 @@ def display_summary_table(all_results: List[Dict[str, Any]]):
 
 
 def export_to_csv(all_results: List[Dict[str, Any]], output_path: str):
-	"""Export full results to a CSV file including individual benchmark details."""
+	"""Export full results to a CSV file in horizontal format."""
 	if not all_results:
 		return
 
@@ -76,7 +77,6 @@ def export_to_csv(all_results: List[Dict[str, Any]], output_path: str):
 					"Total Score (%)": f"{res['score']:.2f}",
 				}
 
-				# Map metric results to columns
 				metric_map = {m["name"]: m for m in res.get("results", [])}
 				for name in benchmark_names:
 					metric_data = metric_map.get(name)
@@ -94,3 +94,48 @@ def export_to_csv(all_results: List[Dict[str, Any]], output_path: str):
 		console.print(f"[bold green]Results exported to {output_path}[/bold green]")
 	except Exception as e:
 		console.print(f"[bold red]Failed to export CSV: {e}[/bold red]")
+
+
+def export_to_txt(all_results: List[Dict[str, Any]], output_path: str):
+	"""Export results to a plain text file mirroring terminal output."""
+	if not all_results:
+		return
+
+	# Use a separate console to capture text output
+	capture_console = Console(file=io.StringIO(), force_terminal=False, width=100)
+
+	sorted_results = sorted(all_results, key=lambda x: x["score"], reverse=True)
+
+	for res in sorted_results:
+		# Temporarily hijack the display_results functionality to write to our capture console
+		# Instead of refactoring display_results to take a console (which might be cleaner later),
+		# we'll just manually recreate the visual report here for the file.
+
+		capture_console.print(f"\n{'=' * 50}")
+		capture_console.print(f"Analysis for {res['name']} ({res['symbol']})")
+		capture_console.print(f"{'=' * 50}")
+
+		table = Table(show_header=True, header_style="bold")
+		table.add_column("Metric", style="dim")
+		table.add_column("Value", justify="right")
+		table.add_column("Strength", justify="right")
+		table.add_column("Points", justify="right")
+
+		for m in res["results"]:
+			table.add_row(
+				m["name"],
+				str(m["value"]),
+				m["status"],
+				f"{m['score']:.2f}/{m['weight']:.1f}",
+			)
+
+		capture_console.print(table)
+		capture_console.print(f"FINAL SCORE: {res['score']:.2f}%")
+		capture_console.print("\n")
+
+	try:
+		with open(output_path, "w") as f:
+			f.write(capture_console.file.getvalue())
+		console.print(f"[bold green]Results exported to {output_path}[/bold green]")
+	except Exception as e:
+		console.print(f"[bold red]Failed to export TXT: {e}[/bold red]")

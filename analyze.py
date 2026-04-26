@@ -9,7 +9,7 @@ from core.data import get_stock_data, load_benchmarks
 from core.display import display_results
 from core.evaluation import evaluate_metric
 from core.profiles import get_profile_weights
-from core.report import display_summary_table, export_to_csv
+from core.report import display_summary_table, export_to_csv, export_to_txt
 from core.schema import AssetType
 
 console = Console()
@@ -70,7 +70,9 @@ def main():
 		help="Investment profile to use",
 	)
 	parser.add_argument(
-		"-e", "--export", help="Export results to a CSV file (e.g., report.csv)"
+		"-e",
+		"--export",
+		help="Export results to a CSV or TXT file (e.g., report.csv or report.txt)",
 	)
 	args = parser.parse_args()
 
@@ -126,7 +128,15 @@ def main():
 			os.makedirs(reports_dir)
 
 		export_path = os.path.join(reports_dir, args.export)
-		export_to_csv(all_analysis_results, export_path)
+
+		ext = os.path.splitext(args.export)[1].lower()
+		if ext == ".csv":
+			export_to_csv(all_analysis_results, export_path)
+		elif ext == ".txt":
+			export_to_txt(all_analysis_results, export_path)
+		else:
+			# Default to CSV if extension is unrecognized
+			export_to_csv(all_analysis_results, export_path)
 
 
 if __name__ == "__main__":

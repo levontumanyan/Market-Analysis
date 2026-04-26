@@ -22,7 +22,8 @@ make run TICKER="AAPL MSFT GOOGL"
 - `make run TICKER="AAPL"`: Run analysis for a single stock.
 - `make run TICKER="AAPL MSFT GOOGL"`: Run bulk analysis for multiple stocks (displays a summary table).
 - `make run FILE="tickers.txt"`: Load tickers from a text or CSV file.
-- `make run TICKER="AAPL MSFT" EXPORT="report.csv"`: Export bulk analysis results to `reports/report.csv`.
+- `make run TICKER="AAPL MSFT" EXPORT="report.csv"`: Export bulk analysis results to `reports/report.csv` (Horizontal CSV).
+- `make run TICKER="AAPL MSFT" EXPORT="report.txt"`: Export bulk analysis results to `reports/report.txt` (Human-readable text).
 - `make run INDEX="SPY"`: Analyze components of an index or ETF.
 - `make run PROFILE="growth" TICKER="AAPL"`: Run analysis with a specific investment profile.
 - `make check`: Run formatting, linting, and all tests in sequence.
