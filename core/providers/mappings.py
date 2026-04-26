@@ -23,6 +23,8 @@ YF_METRIC_MAP = {
 	"shortPercentOfFloat": "shortPercentOfFloat",
 	"shortRatio": "shortRatio",
 	"sharesShort": "sharesShort",
+	"enterpriseToEbitda": "enterpriseToEbitda",
+	"ebitdaMargins": "ebitdaMargins",
 }
 
 

@@ -160,5 +160,24 @@
 		"best": 1.5,
 		"worst": 8.0,
 		"weight": 1.0
+	},
+	{
+		"name": "EV/EBITDA",
+		"metric": "enterpriseToEbitda",
+		"type": "sigmoid",
+		"unit": "multiplier",
+		"best": 10.0,
+		"worst": 25.0,
+		"weight": 1.5
+	},
+	{
+		"name": "EBITDA Margin",
+		"metric": "ebitdaMargins",
+		"type": "sigmoid",
+		"unit": "percentage",
+		"is_decimal": true,
+		"best": 0.30,
+		"worst": 0.10,
+		"weight": 1.0
 	}
 ]
