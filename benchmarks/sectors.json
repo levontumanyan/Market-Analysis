@@ -1,0 +1,40 @@
+{
+	"Technology": {
+		"trailingPE": {
+			"best": 25.0,
+			"worst": 60.0
+		},
+		"forwardPE": {
+			"best": 20.0,
+			"worst": 50.0
+		}
+	},
+	"Energy": {
+		"trailingPE": {
+			"best": 8.0,
+			"worst": 20.0
+		},
+		"forwardPE": {
+			"best": 7.0,
+			"worst": 15.0
+		},
+		"profitMargins": {
+			"best": 0.10,
+			"worst": 0.0
+		}
+	},
+	"Real Estate": {
+		"trailingPE": {
+			"best": 12.0,
+			"worst": 25.0
+		},
+		"pegRatio": {
+			"target": 1.5,
+			"width": 1.0
+		},
+		"priceToBook": {
+			"best": 1.0,
+			"worst": 3.0
+		}
+	}
+}

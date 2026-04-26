@@ -15,14 +15,14 @@
 - **Separation of Concerns**: If a module grows too large, move it into its own logical directory within `core/` (e.g., `core/analysis/`).
 
 ## Environment & Execution
-- **Branching Strategy**: Always create a new branch for features or fixes. Once the work is verified and complete, switch to `main` locally and merge. Do not create PRs for now.
+- **Branching Strategy**: **STRICT MANDATE**: Always create a new branch for features or fixes. NEVER work directly on `main`. Once the work is verified and complete, switch to `main` locally and merge. Do not create PRs for now.
 - **Command Policy**: **ALWAYS** use `make` commands for all operations (running analysis, testing, linting).
 - **Prohibited**: Do **NOT** run or suggest direct `uv` or `python3` command calls.
 
 ## Data & Architecture
 - **Data Source**: **Yahoo Finance (yfinance)** is the primary source for all data (Price, Fundamentals, ETF metrics).
-- **Evaluation Logic**: `benchmarks_stock.json` and `benchmarks_etf.json` define the scoring parameters. Always update these files when adjusting how a metric is interpreted.
-- **Investment Profiles**: `profiles.json` defines the relative importance (weights) of metrics for different investor types.
+- **Evaluation Logic**: Baseline benchmarks are in `benchmarks/stock.json` and `benchmarks/etf.json`. Sector-specific overrides are in `benchmarks/sectors.json`. Always update these files when adjusting how a metric is interpreted.
+- **Investment Profiles**: `profiles/investor_profiles.json` defines the relative importance (weights) of metrics for different investor types.
 
 ## Testing & Validation
 - **Test Suite**: Use `make test` to validate changes. 

@@ -1,21 +1,21 @@
 import json
 from typing import Any, Dict
 
-PROFILES_FILE = "profiles.json"
+from config import PROFILES_PATH
 
 
 def load_profiles() -> Dict[str, Any]:
-	"""Load all profiles from profiles.json"""
+	"""Load all profiles from the configured profiles path"""
 	try:
-		with open(PROFILES_FILE, "r") as f:
+		with open(PROFILES_PATH, "r") as f:
 			data = json.load(f)
 		return data.get("profiles", {})
 	except FileNotFoundError:
-		print(f"[bold red]Error: {PROFILES_FILE} not found.[/bold red]")
+		print(f"[bold red]Error: {PROFILES_PATH} not found.[/bold red]")
 		return {}
 	except json.JSONDecodeError:
 		print(
-			f"[bold red]Error: Could not decode JSON from {PROFILES_FILE}.[/bold red]"
+			f"[bold red]Error: Could not decode JSON from {PROFILES_PATH}.[/bold red]"
 		)
 		return {}
 

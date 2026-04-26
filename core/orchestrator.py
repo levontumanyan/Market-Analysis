@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Optional
 
+from config import CONFIG_DIR
 from core.data import get_stock_data, load_benchmarks
 from core.evaluation import evaluate_metric
 from core.profiles import get_profile_weights
@@ -19,9 +20,9 @@ def analyze_asset(
 	# Determine benchmark file based on asset type if not explicitly provided
 	if not benchmark_path:
 		if asset.asset_type == AssetType.ETF:
-			benchmark_path = "benchmarks_etf.json"
+			benchmark_path = str(CONFIG_DIR / "etf.json")
 		else:
-			benchmark_path = "benchmarks_stock.json"
+			benchmark_path = str(CONFIG_DIR / "stock.json")
 
 	# Load benchmarks with sector context for stocks
 	sector_context = asset.sector if asset.asset_type == AssetType.STOCK else None

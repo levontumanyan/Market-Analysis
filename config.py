@@ -6,6 +6,7 @@ load_dotenv()
 
 # Project paths
 ROOT_DIR = Path(__file__).parent
-BENCHMARKS_PATH = ROOT_DIR / "benchmarks.json"
+CONFIG_DIR = ROOT_DIR / "benchmarks"
+SECTORS_PATH = CONFIG_DIR / "sectors.json"
 CACHE_DIR = ROOT_DIR / "cache" / "yfinance"
-PROFILES_PATH = ROOT_DIR / "profiles.json"
+PROFILES_PATH = ROOT_DIR / "profiles" / "investor_profiles.json"

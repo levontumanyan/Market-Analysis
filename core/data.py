@@ -2,36 +2,31 @@ import json
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
-from config import BENCHMARKS_PATH
+from config import SECTORS_PATH
 
 from .providers.yf_provider import YFinanceProvider
 from .schema import AssetData
 
 
-def load_benchmarks(
-	path: str = BENCHMARKS_PATH, sector: Optional[str] = None
-) -> List[Dict[str, Any]]:
+def load_benchmarks(path: str, sector: Optional[str] = None) -> List[Dict[str, Any]]:
 	"""
-	Load benchmarks from JSON file.
-	Supports both legacy flat list and new sector-aware nested structure.
+	Load benchmarks from a specific path and optionally apply sector overrides.
 	"""
 	try:
 		with open(path, "r") as f:
-			data = json.load(f)
-
-		# 1. Determine base benchmarks
-		if "benchmarks" in data and isinstance(data["benchmarks"], list):
-			# Legacy format
-			global_benchmarks = data["benchmarks"]
-		else:
-			# New sector-aware format
-			global_benchmarks = data.get("global", [])
+			global_benchmarks = json.load(f)
 
 		if not sector:
 			return global_benchmarks
 
-		# 2. Apply Sector Overrides if available
-		overrides = data.get("sector_overrides", {}).get(sector, {})
+		# Apply Sector Overrides from the dedicated sectors file
+		try:
+			with open(SECTORS_PATH, "r") as f:
+				all_overrides = json.load(f)
+				overrides = all_overrides.get(sector, {})
+		except (FileNotFoundError, json.JSONDecodeError):
+			overrides = {}
+
 		if not overrides:
 			return global_benchmarks
 
@@ -49,7 +44,7 @@ def load_benchmarks(
 		return final_benchmarks
 
 	except Exception as e:
-		print(f"[ERROR] Failed to load {path}: {e}")
+		print(f"[ERROR] Failed to load benchmarks from {path}: {e}")
 		return []
 
 
