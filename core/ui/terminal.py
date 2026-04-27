@@ -36,24 +36,50 @@ def display_individual_results(
 	table.add_column("Strength", justify="center")
 	table.add_column("Points", justify="right")
 
+	# Combine data for sorting
+	display_data = []
+	for res, b_def in zip(results, benchmark_defs):
+		# Clarify specific metric names for readability
+		friendly_name = b_def["name"]
+		if friendly_name == "Current Ratio":
+			friendly_name = "Current Ratio (Liquidity)"
+		elif friendly_name == "Trailing P/E Ratio":
+			friendly_name = "Trailing P/E (Past 12m)"
+		elif friendly_name == "Forward P/E Ratio":
+			friendly_name = "Forward P/E (Next 12m)"
+
+		display_data.append(
+			{
+				"name": friendly_name,
+				"value": res["value"],
+				"status": res["status"],
+				"score": res["score"],
+				"weight": res["weight"],
+				"pct": res["pct"],
+			}
+		)
+
+	# Sort by weight descending (importance)
+	display_data.sort(key=lambda x: x["weight"], reverse=True)
+
 	total_score = total_weight = 0.0
 
-	for res, b_def in zip(results, benchmark_defs):
-		if res["weight"] == 0:
+	for item in display_data:
+		if item["weight"] == 0:
 			status_style = "dim"
 			points_str = "N/A"
 		else:
-			status_style = get_color_for_pct(res["pct"])
-			points_str = f"{res['score']:.2f}/{res['weight']:.1f}"
+			status_style = get_color_for_pct(item["pct"])
+			points_str = f"{item['score']:.2f}/{item['weight']:.1f}"
 
 		table.add_row(
-			b_def["name"],
-			res["value"],
-			f"[{status_style}]{res['status']}[/{status_style}]",
+			item["name"],
+			item["value"],
+			f"[{status_style}]{item['status']}[/{status_style}]",
 			points_str,
 		)
-		total_score += res["score"]
-		total_weight += res["weight"]
+		total_score += item["score"]
+		total_weight += item["weight"]
 
 	console.print(table)
 
