@@ -1,7 +1,6 @@
 import json
 from typing import Any, Dict, List, Optional
 
-from config import CONFIG_DIR
 from core.data import get_stock_data, load_benchmarks
 from core.database.repository import DatabaseRepository
 from core.evaluation import evaluate_metric
@@ -15,7 +14,6 @@ logger = get_logger(__name__)
 def analyze_asset(
 	symbol: str,
 	profile: str,
-	benchmark_path: str | None = None,
 	repo: Optional[DatabaseRepository] = None,
 ) -> Optional[Dict[str, Any]]:
 	"""
@@ -27,19 +25,14 @@ def analyze_asset(
 		logger.warning(f"Could not retrieve data for {symbol}")
 		return None
 
-	# Determine benchmark file based on asset type if not explicitly provided
-	if not benchmark_path:
-		if asset.asset_type == AssetType.ETF:
-			benchmark_path = str(CONFIG_DIR / "etf.json")
-		else:
-			benchmark_path = str(CONFIG_DIR / "stock.json")
-
 	# Load benchmarks with sector context for stocks
 	sector_context = asset.sector if asset.asset_type == AssetType.STOCK else None
-	benchmark_defs = load_benchmarks(benchmark_path, sector=sector_context, repo=repo)
+	benchmark_defs = load_benchmarks(
+		asset.asset_type.value, sector=sector_context, repo=repo
+	)
 
 	if not benchmark_defs:
-		logger.error(f"No benchmarks found for {symbol} at {benchmark_path}")
+		logger.error(f"No benchmarks found for {symbol} in database")
 		return None
 
 	profile_weights = get_profile_weights(repo, profile)
@@ -113,7 +106,6 @@ def analyze_asset(
 def run_bulk_analysis(
 	tickers: List[str],
 	profile: str,
-	benchmark_path: str | None = None,
 	progress_callback: Optional[Any] = None,
 	repo: Optional[DatabaseRepository] = None,
 ) -> List[Dict[str, Any]]:
@@ -125,7 +117,7 @@ def run_bulk_analysis(
 	for ticker in tickers:
 		ticker = ticker.upper().strip()
 		try:
-			res = analyze_asset(ticker, profile, benchmark_path, repo=repo)
+			res = analyze_asset(ticker, profile, repo=repo)
 			if res:
 				all_results.append(res)
 				if progress_callback:

@@ -29,7 +29,6 @@ def main():
 	parser.add_argument(
 		"-i", "--index", help="Ticker of an index/ETF to analyze its components"
 	)
-	parser.add_argument("-b", "--benchmarks", help="Override path to benchmarks file")
 	parser.add_argument(
 		"-p",
 		"--profile",
@@ -91,7 +90,7 @@ def main():
 			)
 
 	all_analysis_results = run_bulk_analysis(
-		tickers, args.profile, args.benchmarks, progress_callback, repo=repo
+		tickers, args.profile, progress_callback, repo=repo
 	)
 	stats.end_stage("Analysis & Scoring")
 

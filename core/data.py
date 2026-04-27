@@ -1,4 +1,3 @@
-import json
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
@@ -9,25 +8,29 @@ from .schema import AssetData
 
 
 def load_benchmarks(
-	path: str, sector: Optional[str] = None, repo: Optional[DatabaseRepository] = None
+	asset_type: str,
+	sector: Optional[str] = None,
+	repo: Optional[DatabaseRepository] = None,
 ) -> List[Dict[str, Any]]:
 	"""
-	Load benchmarks from a specific path and optionally apply sector overrides from the DB.
+	Load benchmarks for a specific asset type and optionally apply sector overrides from the DB.
 	"""
-	try:
-		with open(path, "r") as f:
-			global_benchmarks = json.load(f)
+	if not repo:
+		return []
 
-		if not sector or not repo:
+	try:
+		# 1. Load Global Benchmarks for the asset type (STOCK or ETF)
+		global_benchmarks = repo.get_global_benchmarks(asset_type)
+
+		if not sector:
 			return global_benchmarks
 
-		# Apply Sector Overrides from the database
+		# 2. Apply Sector Overrides from the database
 		db_overrides = repo.get_sector_benchmarks(sector)
 		if not db_overrides:
 			return global_benchmarks
 
 		# Convert DB format back to the dictionary format expected by the merge logic
-		# DB rows: {'metric_key': 'pe_ratio', 'benchmark_type': 'best_worst', 'value_a': 25.0, 'value_b': 60.0}
 		overrides = {}
 		for row in db_overrides:
 			m_key = row["metric_key"]
@@ -51,7 +54,7 @@ def load_benchmarks(
 		return final_benchmarks
 
 	except Exception as e:
-		print(f"[ERROR] Failed to load benchmarks from {path}: {e}")
+		print(f"[ERROR] Failed to load benchmarks for {asset_type} from DB: {e}")
 		return []
 
 

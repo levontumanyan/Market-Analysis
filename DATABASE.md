@@ -109,23 +109,19 @@ Stores the weights assigned to each metric within a specific profile.
 | `metric_key` | TEXT | The metric being weighted. |
 | `weight` | REAL | Numerical weight multiplier. |
 
----
-
-## 📂 Vault Structure (File System)
-
-PDFs will be stored in a hierarchical directory structure for easy manual browsing:
-
-```text
-vault/
-└── [SYMBOL]/
-    ├── 10K/
-    │   └── 2023_10K.pdf
-    ├── 10Q/
-    │   ├── 2024_Q1.pdf
-    │   └── 2024_Q2.pdf
-    └── PRESENTATIONS/
-        └── 2024_Q2_Earnings.pdf
-```
+### 11. `global_benchmarks` (Core Evaluation Rules)
+Stores the master scoring rules for each asset type.
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `asset_type` | TEXT (PK) | 'STOCK' or 'ETF'. |
+| `metric_key` | TEXT (PK) | e.g., 'pe_ratio'. |
+| `name` | TEXT | Human-readable display name. |
+| `formula_type`| TEXT | 'sigmoid', 'bell_curve', 'linear', 'threshold'. |
+| `unit` | TEXT | 'multiplier', 'percentage', 'currency', or NULL. |
+| `is_decimal` | BOOLEAN| True if 0.05 means 5% in raw data. |
+| `display_key` | TEXT | Optional secondary key for labels. |
+| `params_json` | TEXT | JSON string of scorer params (e.g. `{"best": 15, "worst": 50}`). |
+| `weight` | REAL | Default multiplier for the metric. |
 
 ---
 
@@ -141,13 +137,28 @@ Modify `get_index_components` to store fetched lists in the `indices` and `index
 Implement the `sector_benchmarks` table. Populate it initially from `sectors.json`, with a logic to auto-refresh benchmarks every 30 days based on aggregated DB data.
 
 ### Step 4: JSON Migration
-Create a utility script to ingest the legacy `cache/yfinance/*.json` data into the `assets` and `financial_statements` tables.
+Complete the migration of `investor_profiles.json`, `sectors.json`, `stock.json`, and `etf.json` into relational tables. **Delete legacy JSON files.**
 
 ### Step 5: Passive Snapshotting
-Update the `Orchestrator` to record every analysis run in `analysis_snapshots`. This builds a historical record of "Quality Over Time."
+Update the `Orchestrator` to record every analysis run in `analysis_snapshots` and `metrics_history`. This builds a historical record of "Quality Over Time."
 
 ### Step 6: Read-Through Caching
 Update `YFinanceProvider` to query the database first. Only fetch from yfinance if data is missing or stale (> 24 hours).
 
 ### Step 7: Qualitative Integration
 Implement the PDF downloader and `document_index` to support qualitative business analysis.
+
+---
+
+## 🔄 Database Maintenance & Syncing
+
+To maintain ease of use while leveraging the power of a database, the following tools are planned for implementation:
+
+### 1. YAML Configuration Sync (`make db-sync-configs`)
+Allows for human-friendly editing of `global_benchmarks` and `investor_profiles` in YAML files, which are then bi-directionally synced with the database. This keeps strategies in Version Control (Git) while they live in the DB.
+
+### 2. Bulk Sector Editing (`make db-export-sectors` / `make db-import-sectors`)
+Enables exporting `sector_benchmarks` to CSV for mass-editing in Excel or Numbers, and re-importing the refined values back into the "Investment Brain."
+
+### 3. Interactive CLI Editor (`make db-edit`)
+A lightweight interactive prompt for making surgical adjustments to individual weights or benchmark thresholds without writing SQL.

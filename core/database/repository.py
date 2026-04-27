@@ -226,3 +226,74 @@ class DatabaseRepository:
 			(profile_name,),
 		)
 		return {row["metric_key"]: row["weight"] for row in cursor.fetchall()}
+
+	def upsert_global_benchmark(
+		self,
+		asset_type: str,
+		metric_key: str,
+		name: str,
+		formula_type: str,
+		unit: Optional[str],
+		is_decimal: bool,
+		display_key: Optional[str],
+		params_json: str,
+		weight: float,
+	):
+		"""Insert or update a global benchmark."""
+		conn = self.db.get_connection()
+		cursor = conn.cursor()
+		cursor.execute(
+			"""
+			INSERT INTO global_benchmarks (asset_type, metric_key, name, formula_type, unit, is_decimal, display_key, params_json, weight)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+			ON CONFLICT(asset_type, metric_key) DO UPDATE SET
+				name = excluded.name,
+				formula_type = excluded.formula_type,
+				unit = excluded.unit,
+				is_decimal = excluded.is_decimal,
+				display_key = excluded.display_key,
+				params_json = excluded.params_json,
+				weight = excluded.weight
+		""",
+			(
+				asset_type,
+				metric_key,
+				name,
+				formula_type,
+				unit,
+				is_decimal,
+				display_key,
+				params_json,
+				weight,
+			),
+		)
+		conn.commit()
+
+	def get_global_benchmarks(self, asset_type: str) -> List[dict]:
+		"""Get all benchmarks for a specific asset type, with params merged in."""
+		import json
+
+		conn = self.db.get_connection()
+		cursor = conn.cursor()
+		cursor.execute(
+			"SELECT * FROM global_benchmarks WHERE asset_type = ?", (asset_type,)
+		)
+		rows = cursor.fetchall()
+
+		benchmarks = []
+		for row in rows:
+			b = dict(row)
+			# Rename columns to match what evaluate_metric expects
+			b["metric"] = b.pop("metric_key")
+			b["type"] = b.pop("formula_type")
+
+			# Parse and merge params
+			if b.get("params_json"):
+				try:
+					params = json.loads(b.pop("params_json"))
+					b.update(params)
+				except json.JSONDecodeError:
+					pass
+			benchmarks.append(b)
+
+		return benchmarks

@@ -144,6 +144,22 @@ class DatabaseManager:
 			)
 		""")
 
+		# Global Benchmarks table
+		cursor.execute("""
+			CREATE TABLE IF NOT EXISTS global_benchmarks (
+				asset_type TEXT,
+				metric_key TEXT,
+				name TEXT,
+				formula_type TEXT,
+				unit TEXT,
+				is_decimal BOOLEAN,
+				display_key TEXT,
+				params_json TEXT,
+				weight REAL,
+				PRIMARY KEY (asset_type, metric_key)
+			)
+		""")
+
 		self.conn.commit()
 
 	def get_connection(self) -> sqlite3.Connection:

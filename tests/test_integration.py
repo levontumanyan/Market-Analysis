@@ -22,9 +22,9 @@ def repo(tmp_path):
 	manager.close()
 
 
-def test_load_benchmarks_invalid_file():
-	# Test with a non-existent file
-	assert load_benchmarks("non_existent.json") == []
+def test_load_benchmarks_no_repo():
+	# Test that it returns empty list if no repo provided
+	assert load_benchmarks("STOCK") == []
 
 
 def test_run_bulk_analysis(mocker, repo):
