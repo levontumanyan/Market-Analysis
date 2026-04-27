@@ -3,8 +3,11 @@ from typing import Any, Dict, List, Optional
 from config import CONFIG_DIR
 from core.data import get_stock_data, load_benchmarks
 from core.evaluation import evaluate_metric
+from core.logger import get_logger
 from core.profiles import get_profile_weights
 from core.schema import AssetType
+
+logger = get_logger(__name__)
 
 
 def analyze_asset(
@@ -13,8 +16,10 @@ def analyze_asset(
 	"""
 	Analyze a single asset and return the results and score.
 	"""
+	logger.info(f"Analyzing asset: {symbol} with profile: {profile}")
 	asset = get_stock_data(symbol)
 	if not asset:
+		logger.warning(f"Could not retrieve data for {symbol}")
 		return None
 
 	# Determine benchmark file based on asset type if not explicitly provided
@@ -29,6 +34,7 @@ def analyze_asset(
 	benchmark_defs = load_benchmarks(benchmark_path, sector=sector_context)
 
 	if not benchmark_defs:
+		logger.error(f"No benchmarks found for {symbol} at {benchmark_path}")
 		return None
 
 	profile_weights = get_profile_weights(profile)
@@ -43,6 +49,7 @@ def analyze_asset(
 
 	final_pct = (total_score / max_score * 100) if max_score > 0 else 0.0
 
+	logger.info(f"Analysis complete for {symbol}: {final_pct:.2f}%")
 	return {
 		"symbol": asset.symbol,
 		"name": asset.display_name,
@@ -64,6 +71,7 @@ def run_bulk_analysis(
 	"""
 	Run analysis for multiple tickers.
 	"""
+	logger.info(f"Starting bulk analysis for {len(tickers)} tickers")
 	all_results = []
 	for ticker in tickers:
 		ticker = ticker.upper().strip()
@@ -74,7 +82,9 @@ def run_bulk_analysis(
 				if progress_callback:
 					progress_callback(res)
 		except Exception as e:
-			# In a real app, we might log this properly
-			print(f"Error analyzing {ticker}: {e}")
+			logger.error(f"Error analyzing {ticker}: {e}")
 
+	logger.info(
+		f"Bulk analysis complete. Successfully analyzed {len(all_results)}/{len(tickers)} tickers."
+	)
 	return all_results

@@ -6,6 +6,10 @@ from typing import Any, Dict
 from openbb import obb
 
 from config import CACHE_DIR
+from core.logger import get_logger
+from core.stats import stats
+
+logger = get_logger(__name__)
 
 
 def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
@@ -19,11 +23,16 @@ def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 	# 1. Return cache if fresh (< 3 hour)
 	if cache_file.exists() and (time.time() - cache_file.stat().st_mtime) < 10800:
 		try:
+			logger.info(f"Cache hit for {ticker_symbol}")
+			stats.cache_hits += 1
 			return json.loads(cache_file.read_text())
-		except Exception:
+		except Exception as e:
+			logger.warning(f"Failed to read cache for {ticker_symbol}: {e}")
 			pass
 
 	# 2. Fetch fresh data
+	logger.info(f"Fetching fresh data for {ticker_symbol} from OpenBB")
+	stats.api_calls += 1
 	try:
 		combined_data = {}
 		provider = "yfinance"
@@ -55,22 +64,22 @@ def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 			merge_res(
 				obb.equity.fundamental.metrics(symbol=ticker_symbol, provider=provider)
 			)
-		except Exception:
-			pass
+		except Exception as e:
+			logger.debug(f"Metrics fetch failed for {ticker_symbol}: {e}")
 
 		# Endpoint 2: Company Profile (Stocks)
 		try:
 			merge_res(obb.equity.profile(symbol=ticker_symbol, provider=provider))
-		except Exception:
-			pass
+		except Exception as e:
+			logger.debug(f"Profile fetch failed for {ticker_symbol}: {e}")
 
 		# Endpoint 3: Analyst Consensus (Stocks)
 		try:
 			merge_res(
 				obb.equity.estimates.consensus(symbol=ticker_symbol, provider=provider)
 			)
-		except Exception:
-			pass
+		except Exception as e:
+			logger.debug(f"Consensus fetch failed for {ticker_symbol}: {e}")
 
 		# Endpoint 4: Ownership Statistics (Stocks)
 		try:
@@ -79,8 +88,8 @@ def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 					symbol=ticker_symbol, provider=provider
 				)
 			)
-		except Exception:
-			pass
+		except Exception as e:
+			logger.debug(f"Ownership fetch failed for {ticker_symbol}: {e}")
 
 		# Endpoint 5: ETF Info (if above fails or it is an ETF)
 		if (
@@ -90,10 +99,11 @@ def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 		):
 			try:
 				merge_res(obb.etf.info(symbol=ticker_symbol, provider=provider))
-			except Exception:
-				pass
+			except Exception as e:
+				logger.debug(f"ETF info fetch failed for {ticker_symbol}: {e}")
 
 		if not combined_data:
+			logger.warning(f"No data retrieved for {ticker_symbol}")
 			return {}
 
 		# Save to cache
@@ -105,5 +115,6 @@ def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 		return combined_data
 
 	except Exception as e:
-		print(f"[DEBUG] OpenBB overall error for {ticker_symbol}: {e}")
+		logger.error(f"OpenBB overall error for {ticker_symbol}: {e}")
+		stats.errors += 1
 		return {}

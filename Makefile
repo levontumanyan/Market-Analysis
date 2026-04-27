@@ -7,12 +7,14 @@ TICKER ?=
 FILE ?=
 EXPORT ?=
 INDEX ?=
+VERBOSE ?=
 
 run:
 	@uv run analyze.py $(TICKER) \
 		$(if $(FILE),--file $(FILE)) \
 		$(if $(EXPORT),--export $(EXPORT)) \
 		$(if $(INDEX),--index $(INDEX)) \
+		$(if $(VERBOSE),--verbose) \
 		--profile $(PROFILE)
 
 # Run code linting and formatting checks

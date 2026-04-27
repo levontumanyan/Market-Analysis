@@ -6,12 +6,19 @@ from rich.console import Console
 
 from core.analysis.indices import get_index_components
 from core.io.parsers import parse_ticker_file
+from core.logger import get_logger, setup_logging
 from core.orchestrator import run_bulk_analysis
 from core.reporting.csv_reporter import CSVReporter
 from core.reporting.txt_reporter import TXTReporter
-from core.ui.terminal import display_individual_results, display_summary_table
+from core.stats import stats
+from core.ui.terminal import (
+	display_individual_results,
+	display_run_summary,
+	display_summary_table,
+)
 
 console = Console()
+logger = get_logger(__name__)
 
 
 def main():
@@ -34,14 +41,26 @@ def main():
 		"--export",
 		help="Export results to a CSV or TXT file (e.g., report.csv or report.txt)",
 	)
+	parser.add_argument(
+		"-v",
+		"--verbose",
+		action="store_true",
+		help="Enable verbose output (print logs to console)",
+	)
 	args = parser.parse_args()
 
+	# Initialize Logging
+	setup_logging(verbose=args.verbose)
+	logger.info("Application started")
+
 	# 1. Collect Tickers
+	stats.start_stage("Data Discovery")
 	tickers = list(args.tickers)
 	if args.file:
 		tickers.extend(parse_ticker_file(args.file))
 	if args.index:
 		tickers.extend(get_index_components(args.index))
+	stats.end_stage("Data Discovery")
 
 	if not tickers:
 		console.print("[bold red]Error: No tickers provided.[/bold red]")
@@ -49,6 +68,7 @@ def main():
 		sys.exit(1)
 
 	# 2. Process Tickers
+	stats.start_stage("Analysis & Scoring")
 	is_bulk = len(tickers) > 1
 	console.print(
 		f"[bold green]Analyzing {len(tickers)} asset(s) with [cyan]{args.profile.upper()}[/cyan] profile[/bold green]"
@@ -68,8 +88,10 @@ def main():
 	all_analysis_results = run_bulk_analysis(
 		tickers, args.profile, args.benchmarks, progress_callback
 	)
+	stats.end_stage("Analysis & Scoring")
 
 	# 3. Bulk Summary & Export
+	stats.start_stage("Reporting")
 	if is_bulk and all_analysis_results:
 		display_summary_table(all_analysis_results)
 
@@ -91,6 +113,10 @@ def main():
 			reporter = CSVReporter()
 
 		reporter.export(all_analysis_results, export_path)
+	stats.end_stage("Reporting")
+
+	display_run_summary(stats)
+	logger.info("Application finished")
 
 
 if __name__ == "__main__":

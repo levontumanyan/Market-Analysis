@@ -3,6 +3,8 @@ from typing import Any, Dict, List, Optional
 from rich.console import Console
 from rich.table import Table
 
+from core.stats import SessionStats
+
 console = Console()
 
 
@@ -100,4 +102,28 @@ def display_summary_table(all_results: List[Dict[str, Any]]):
 			f"[{color}]{verdict}[/{color}]",
 		)
 
+	console.print(table)
+
+
+def display_run_summary(stats: SessionStats):
+	"""Display a summary of the execution run (timers, cache hits, etc)."""
+	table = Table(title="Execution Run Summary", show_header=False, box=None)
+	table.add_column("Metric", style="dim")
+	table.add_column("Value", style="bold")
+
+	# Duration metrics
+	table.add_row("Total Duration", f"{stats.get_total_time():.2f}s")
+	for stage, duration in stats.stage_times.items():
+		table.add_row(f"  └─ {stage}", f"{duration:.2f}s")
+
+	# Cache metrics
+	total_requests = stats.cache_hits + stats.api_calls
+	cache_rate = (stats.cache_hits / total_requests * 100) if total_requests > 0 else 0
+	table.add_row("Cache Hits", f"{stats.cache_hits} ({cache_rate:.1f}%)")
+	table.add_row("API Calls", str(stats.api_calls))
+
+	if stats.errors > 0:
+		table.add_row("Errors", f"[bold red]{stats.errors}[/bold red]")
+
+	console.print("\n")
 	console.print(table)
