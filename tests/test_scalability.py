@@ -1,6 +1,6 @@
 from core.io.parsers import parse_ticker_file
 from core.orchestrator import analyze_asset
-from core.providers.yf_provider import YFinanceProvider
+from core.providers.openbb_provider import OpenBBProvider
 from core.schema import AssetData, AssetType
 
 
@@ -46,24 +46,25 @@ def test_asset_data_default_display_name():
 	assert asset.display_name == "MSFT"
 
 
-def test_yf_provider_mapping(mocker):
+def test_openbb_provider_mapping(mocker):
 	mock_raw_data = {
 		"symbol": "SPY",
-		"quoteType": "ETF",
-		"shortName": "SPDR S&P 500 ETF Trust",
-		"trailingPE": 25.0,
-		"netExpenseRatio": 0.0009,
+		"name": "SPDR S&P 500 ETF Trust",
+		"pe_ratio": 25.0,
+		"dividend_yield": 0.015,
+		"fund_family": "SPDR",
 	}
-	mocker.patch("core.providers.yf_provider.get_yf_data", return_value=mock_raw_data)
+	mocker.patch(
+		"core.providers.openbb_provider.get_openbb_data", return_value=mock_raw_data
+	)
 
-	provider = YFinanceProvider()
+	provider = OpenBBProvider()
 	asset = provider.get_data("SPY")
 
 	assert asset is not None
 	assert asset.symbol == "SPY"
 	assert asset.asset_type == AssetType.ETF
-	assert asset.metrics["trailingPE"] == 25.0
-	assert asset.metrics["netExpenseRatio"] == 0.0009
+	assert asset.metrics["pe_ratio"] == 25.0
 
 
 def test_parse_ticker_file_txt(tmp_path):

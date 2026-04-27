@@ -1,17 +1,7 @@
 [
 	{
-		"name": "Expense Ratio",
-		"metric": "netExpenseRatio",
-		"type": "sigmoid",
-		"unit": "percentage",
-		"is_decimal": false,
-		"best": 0.05,
-		"worst": 0.75,
-		"weight": 2.0
-	},
-	{
 		"name": "Dividend Yield",
-		"metric": "yield",
+		"metric": "dividend_yield",
 		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": false,
@@ -21,7 +11,7 @@
 	},
 	{
 		"name": "Beta (3Y)",
-		"metric": "beta3Year",
+		"metric": "beta_3y_avg",
 		"type": "bell_curve",
 		"unit": "multiplier",
 		"target": 1.0,
@@ -30,7 +20,7 @@
 	},
 	{
 		"name": "P/E Ratio",
-		"metric": "trailingPE",
+		"metric": "trailing_pe",
 		"type": "sigmoid",
 		"unit": "multiplier",
 		"best": 15.0,

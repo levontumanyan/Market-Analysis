@@ -1,7 +1,7 @@
 [
 	{
 		"name": "Trailing P/E Ratio",
-		"metric": "trailingPE",
+		"metric": "pe_ratio",
 		"type": "sigmoid",
 		"unit": "multiplier",
 		"best": 15.0,
@@ -10,7 +10,7 @@
 	},
 	{
 		"name": "Forward P/E Ratio",
-		"metric": "forwardPE",
+		"metric": "forward_pe",
 		"type": "sigmoid",
 		"unit": "multiplier",
 		"best": 12.0,
@@ -19,7 +19,7 @@
 	},
 	{
 		"name": "PEG Ratio",
-		"metric": "pegRatio",
+		"metric": "peg_ratio",
 		"type": "bell_curve",
 		"unit": "multiplier",
 		"target": 0.7,
@@ -28,7 +28,7 @@
 	},
 	{
 		"name": "Price to Book",
-		"metric": "priceToBook",
+		"metric": "price_to_book",
 		"type": "sigmoid",
 		"unit": "multiplier",
 		"best": 1.0,
@@ -37,7 +37,7 @@
 	},
 	{
 		"name": "Return on Equity",
-		"metric": "returnOnEquity",
+		"metric": "return_on_equity",
 		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": true,
@@ -47,7 +47,7 @@
 	},
 	{
 		"name": "Profit Margin",
-		"metric": "profitMargins",
+		"metric": "profit_margin",
 		"type": "linear",
 		"unit": "percentage",
 		"is_decimal": true,
@@ -57,7 +57,7 @@
 	},
 	{
 		"name": "Debt to Equity",
-		"metric": "debtToEquity",
+		"metric": "debt_to_equity",
 		"type": "bell_curve",
 		"unit": "multiplier",
 		"target": 50.0,
@@ -66,7 +66,7 @@
 	},
 	{
 		"name": "Current Ratio",
-		"metric": "currentRatio",
+		"metric": "current_ratio",
 		"type": "sigmoid",
 		"unit": "multiplier",
 		"best": 2.0,
@@ -75,7 +75,7 @@
 	},
 	{
 		"name": "Revenue Growth",
-		"metric": "revenueGrowth",
+		"metric": "revenue_growth",
 		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": true,
@@ -85,7 +85,7 @@
 	},
 	{
 		"name": "Insider Ownership",
-		"metric": "heldPercentInsiders",
+		"metric": "insider_ownership",
 		"type": "bell_curve",
 		"unit": "percentage",
 		"is_decimal": true,
@@ -95,7 +95,7 @@
 	},
 	{
 		"name": "Institutional Ownership",
-		"metric": "heldPercentInstitutions",
+		"metric": "institution_ownership",
 		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": true,
@@ -105,7 +105,7 @@
 	},
 	{
 		"name": "Dividend Yield",
-		"metric": "dividendYield",
+		"metric": "dividend_yield",
 		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": false,
@@ -115,36 +115,16 @@
 	},
 	{
 		"name": "Analyst Recommendation",
-		"metric": "recommendationMean",
-		"display_key": "recommendationKey",
+		"metric": "recommendation_mean",
+		"display_key": "recommendation",
 		"type": "sigmoid",
 		"best": 1.0,
 		"worst": 4.0,
 		"weight": 1.0
 	},
 	{
-		"name": "Share Change (1Y)",
-		"metric": "sharesChange1Year",
-		"type": "sigmoid",
-		"unit": "percentage",
-		"is_decimal": true,
-		"best": -0.02,
-		"worst": 0.05,
-		"weight": 1.0
-	},
-	{
-		"name": "Share Change (3Y)",
-		"metric": "sharesChange3Year",
-		"type": "sigmoid",
-		"unit": "percentage",
-		"is_decimal": true,
-		"best": -0.05,
-		"worst": 0.15,
-		"weight": 1.0
-	},
-	{
 		"name": "Short % of Float",
-		"metric": "shortPercentOfFloat",
+		"metric": "short_percent_of_float",
 		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": true,
@@ -154,7 +134,7 @@
 	},
 	{
 		"name": "Short Ratio",
-		"metric": "shortRatio",
+		"metric": "days_to_cover",
 		"type": "sigmoid",
 		"unit": "multiplier",
 		"best": 1.5,
@@ -163,7 +143,7 @@
 	},
 	{
 		"name": "EV/EBITDA",
-		"metric": "enterpriseToEbitda",
+		"metric": "enterprise_to_ebitda",
 		"type": "sigmoid",
 		"unit": "multiplier",
 		"best": 10.0,
@@ -172,7 +152,7 @@
 	},
 	{
 		"name": "EBITDA Margin",
-		"metric": "ebitdaMargins",
+		"metric": "ebitda_margin",
 		"type": "sigmoid",
 		"unit": "percentage",
 		"is_decimal": true,

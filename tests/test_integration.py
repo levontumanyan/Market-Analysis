@@ -35,5 +35,5 @@ def test_get_profile_weights_invalid():
 
 def test_get_stock_data(mocker):
 	# Mock the provider to avoid real API calls
-	mocker.patch("core.data.YFinanceProvider.get_data", return_value="mocked_data")
+	mocker.patch("core.data.OpenBBProvider.get_data", return_value="mocked_data")
 	assert get_stock_data("AAPL") == "mocked_data"

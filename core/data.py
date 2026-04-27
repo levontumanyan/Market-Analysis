@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 from config import SECTORS_PATH
 
-from .providers.yf_provider import YFinanceProvider
+from .providers.openbb_provider import OpenBBProvider
 from .schema import AssetData
 
 
@@ -54,5 +54,5 @@ def get_stock_data(ticker_symbol: str) -> Optional[AssetData]:
 	Master function:
 	Fetches data using the configured providers and returns normalized AssetData.
 	"""
-	provider = YFinanceProvider()
+	provider = OpenBBProvider()
 	return provider.get_data(ticker_symbol.upper())

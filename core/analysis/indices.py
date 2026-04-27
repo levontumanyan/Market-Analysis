@@ -1,14 +1,14 @@
 from typing import List
 
 import pandas as pd
-import yfinance as yf
+import yfinance as yf  # Keep as fallback for free ETF holdings until OpenBB supports it keyless
 
 
 def get_index_components(index_ticker: str) -> List[str]:
 	"""
 	Fetch components of an index or ETF.
-	Uses yfinance's funds_data to retrieve top holdings for funds/ETFs.
-	Returns a list of ticker symbols.
+	Currently uses yfinance directly as a fallback because OpenBB
+	requires API keys (FMP/Intrinio) for holdings data.
 	"""
 	index_ticker = index_ticker.upper()
 	try:
