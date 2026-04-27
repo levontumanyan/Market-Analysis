@@ -1,7 +1,9 @@
+import json
 from typing import Any, Dict, List, Optional
 
 from config import CONFIG_DIR
 from core.data import get_stock_data, load_benchmarks
+from core.database.repository import DatabaseRepository
 from core.evaluation import evaluate_metric
 from core.logger import get_logger
 from core.profiles import get_profile_weights
@@ -11,7 +13,10 @@ logger = get_logger(__name__)
 
 
 def analyze_asset(
-	symbol: str, profile: str, benchmark_path: str | None = None
+	symbol: str,
+	profile: str,
+	benchmark_path: str | None = None,
+	repo: Optional[DatabaseRepository] = None,
 ) -> Optional[Dict[str, Any]]:
 	"""
 	Analyze a single asset and return the results and score.
@@ -49,6 +54,49 @@ def analyze_asset(
 
 	final_pct = (total_score / max_score * 100) if max_score > 0 else 0.0
 
+	# DB Recording
+	if repo:
+		try:
+			# 1. Update Asset Metadata
+			repo.upsert_asset(
+				symbol=asset.symbol,
+				name=asset.name,
+				asset_type=asset.asset_type.value,
+				sector=asset.sector,
+				industry=asset.industry,
+			)
+
+			# 2. Record Metric History (the raw values used for benchmarks)
+			for res in results:
+				metric_key = res.get("metric")
+				val = res.get("raw_value")
+				if metric_key and val is not None:
+					try:
+						repo.insert_metric_history(asset.symbol, metric_key, float(val))
+					except (ValueError, TypeError):
+						pass
+
+			# 3. Create Analysis Snapshot
+			# Convert results to JSON for historical breakdown
+			results_summary = [
+				{
+					"metric": r["metric"],
+					"value": r["value"],
+					"score": r["score"],
+					"weight": r["weight"],
+				}
+				for r in results
+			]
+			repo.create_analysis_snapshot(
+				symbol=asset.symbol,
+				profile=profile,
+				total_score=final_pct,
+				results_json=json.dumps(results_summary),
+			)
+			logger.info(f"Saved analysis snapshot for {symbol} to DB")
+		except Exception as e:
+			logger.error(f"Failed to save analysis to DB for {symbol}: {e}")
+
 	logger.info(f"Analysis complete for {symbol}: {final_pct:.2f}%")
 	return {
 		"symbol": asset.symbol,
@@ -67,6 +115,7 @@ def run_bulk_analysis(
 	profile: str,
 	benchmark_path: str | None = None,
 	progress_callback: Optional[Any] = None,
+	repo: Optional[DatabaseRepository] = None,
 ) -> List[Dict[str, Any]]:
 	"""
 	Run analysis for multiple tickers.
@@ -76,7 +125,7 @@ def run_bulk_analysis(
 	for ticker in tickers:
 		ticker = ticker.upper().strip()
 		try:
-			res = analyze_asset(ticker, profile, benchmark_path)
+			res = analyze_asset(ticker, profile, benchmark_path, repo=repo)
 			if res:
 				all_results.append(res)
 				if progress_callback:

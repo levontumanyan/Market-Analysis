@@ -30,9 +30,11 @@ def evaluate_metric(
 	# Handle missing or invalid data
 	if val is None:
 		return {
+			"metric": metric_key,
 			"name": benchmark["name"],
 			"status": "N/A",
 			"value": "N/A",
+			"raw_value": None,
 			"score": 0.0,
 			"weight": 0.0,
 			"pct": 0.0,
@@ -68,9 +70,11 @@ def evaluate_metric(
 	score = weight * pct
 
 	return {
+		"metric": metric_key,
 		"name": benchmark["name"],
 		"status": f"{pct * 100:.0f}%",
 		"value": display_val,
+		"raw_value": val,
 		"score": score,
 		"weight": weight,
 		"pct": pct,

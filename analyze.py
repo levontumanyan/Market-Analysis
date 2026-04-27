@@ -5,6 +5,7 @@ import sys
 from rich.console import Console
 
 from core.analysis.indices import get_index_components
+from core.database import DatabaseManager, DatabaseRepository
 from core.io.parsers import parse_ticker_file
 from core.logger import get_logger, setup_logging
 from core.orchestrator import run_bulk_analysis
@@ -53,13 +54,17 @@ def main():
 	setup_logging(verbose=args.verbose)
 	logger.info("Application started")
 
+	# Initialize Database
+	db_manager = DatabaseManager()
+	repo = DatabaseRepository(db_manager)
+
 	# 1. Collect Tickers
 	stats.start_stage("Data Discovery")
 	tickers = list(args.tickers)
 	if args.file:
 		tickers.extend(parse_ticker_file(args.file))
 	if args.index:
-		tickers.extend(get_index_components(args.index))
+		tickers.extend(get_index_components(args.index, repo=repo))
 	stats.end_stage("Data Discovery")
 
 	if not tickers:
@@ -86,7 +91,7 @@ def main():
 			)
 
 	all_analysis_results = run_bulk_analysis(
-		tickers, args.profile, args.benchmarks, progress_callback
+		tickers, args.profile, args.benchmarks, progress_callback, repo=repo
 	)
 	stats.end_stage("Analysis & Scoring")
 

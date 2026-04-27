@@ -1,21 +1,50 @@
-from typing import List
+from datetime import datetime, timedelta
+from typing import List, Optional
 
 import pandas as pd
 import yfinance as yf
 
+from core.database.repository import DatabaseRepository
+from core.logger import get_logger
+
 from .constituents import get_constituents
 
+logger = get_logger(__name__)
 
-def get_index_components(index_ticker: str) -> List[str]:
+
+def get_index_components(
+	index_ticker: str, repo: Optional[DatabaseRepository] = None
+) -> List[str]:
 	"""
 	Fetch components of an index or ETF.
-	1. Checks if it's a major index (SP500, NASDAQ100, DOW) for full lists.
-	2. Falls back to yfinance funds_data (Top 10) for other ETFs.
+	1. Checks DB for existing constituents (if repo provided).
+	   - If data is fresh (< 7 days), returns it.
+	   - If data is stale, continues to fetch fresh data.
+	2. Checks if it's a major index (SP500, NASDAQ100, DOW) for full lists.
+	3. Falls back to yfinance funds_data (Top 10) for other ETFs.
 	Returns a list of ticker symbols.
 	"""
 	index_ticker = index_ticker.upper().strip()
 
-	# 1. Try major index full constituent fetching
+	# 1. Try DB first with staleness check
+	if repo:
+		index_meta = repo.get_index(index_ticker)
+		if index_meta and index_meta.get("last_updated"):
+			last_updated = datetime.strptime(
+				index_meta["last_updated"], "%Y-%m-%d %H:%M:%S"
+			)
+			if datetime.utcnow() - last_updated < timedelta(days=7):
+				db_constituents = repo.get_index_constituents(index_ticker)
+				if db_constituents:
+					logger.info(
+						f"Found fresh constituents for {index_ticker} in DB "
+						f"(updated {index_meta['last_updated']})"
+					)
+					return db_constituents
+			else:
+				logger.info(f"DB constituents for {index_ticker} are stale. Refreshing...")
+
+	# 2. Try major index full constituent fetching
 	mapping = {
 		"SP500": "sp500",
 		"S&P500": "sp500",
@@ -25,27 +54,43 @@ def get_index_components(index_ticker: str) -> List[str]:
 		"DJIA": "dow",
 	}
 
+	constituents = []
+	is_etf = True
+
 	if index_ticker in mapping:
-		full_list = get_constituents(mapping[index_ticker])
-		if full_list:
-			return full_list
+		is_etf = False
+		constituents = get_constituents(mapping[index_ticker])
 
-	# 2. Fallback to yfinance top holdings for ETFs
-	try:
-		ticker = yf.Ticker(index_ticker)
-		funds_data = ticker.funds_data
+	# 3. Fallback to yfinance top holdings for ETFs
+	if not constituents:
+		try:
+			ticker = yf.Ticker(index_ticker)
+			funds_data = ticker.funds_data
 
-		if funds_data is not None:
-			top_holdings = funds_data.top_holdings
-			if isinstance(top_holdings, pd.DataFrame) and not top_holdings.empty:
-				symbols = top_holdings.index.tolist()
-				valid_symbols = [
-					str(s).upper() for s in symbols if s and isinstance(s, str)
-				]
-				if valid_symbols:
-					return valid_symbols
+			if funds_data is not None:
+				top_holdings = funds_data.top_holdings
+				if isinstance(top_holdings, pd.DataFrame) and not top_holdings.empty:
+					symbols = top_holdings.index.tolist()
+					constituents = [
+						str(s).upper() for s in symbols if s and isinstance(s, str)
+					]
+		except Exception as e:
+			logger.warning(f"Error fetching ETF holdings for {index_ticker}: {e}")
 
-		# Fallback to the ticker itself if no holdings are found
-		return [index_ticker]
-	except Exception:
-		return [index_ticker]
+	# 4. Save to DB if we found something OR if it was stale (to update timestamp)
+	if repo:
+		try:
+			# If we have constituents, update them. 
+			# If we don't, we still update the index metadata to refresh last_updated
+			repo.upsert_index(index_ticker, index_ticker, is_etf=is_etf)
+			if constituents:
+				repo.update_index_constituents(index_ticker, constituents)
+				logger.info(f"Persisted {len(constituents)} constituents for {index_ticker} to DB")
+			else:
+				# If refresh failed to find anything, clear constituents in DB
+				# to avoid returning stale data next time
+				repo.update_index_constituents(index_ticker, [])
+		except Exception as e:
+			logger.error(f"Failed to persist constituents to DB: {e}")
+
+	return constituents if constituents else [index_ticker]

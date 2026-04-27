@@ -44,6 +44,36 @@ setup:
 	chmod +x .git/hooks/pre-commit
 	@echo "Git hooks installed successfully."
 
+# Database tools
+db-shell:
+	@sqlite3 market_analysis.db
+
+db-summary:
+	@echo "--- Database Summary ---"
+	@echo "Assets:      $$(sqlite3 market_analysis.db 'SELECT COUNT(*) FROM assets;')"
+	@echo "Indices:     $$(sqlite3 market_analysis.db 'SELECT COUNT(*) FROM indices;')"
+	@echo "Snapshots:   $$(sqlite3 market_analysis.db 'SELECT COUNT(*) FROM analysis_snapshots;')"
+	@echo "Financials:  $$(sqlite3 market_analysis.db 'SELECT COUNT(*) FROM financial_statements;')"
+	@echo "------------------------"
+
+db-assets:
+	@PYTHONPATH=. uv run scripts/db_inspect.py assets
+
+db-indices:
+	@PYTHONPATH=. uv run scripts/db_inspect.py indices
+
+db-snapshots:
+	@PYTHONPATH=. uv run scripts/db_inspect.py snapshots
+
+db-sectors:
+	@PYTHONPATH=. uv run scripts/db_inspect.py sectors
+
+db-profiles:
+	@PYTHONPATH=. uv run scripts/db_inspect.py profiles
+
+populate-index:
+	@PYTHONPATH=. uv run scripts/populate_index.py $(INDEX)
+
 # Remove temporary files and the virtual environment
 clean:
 	rm -rf .venv
