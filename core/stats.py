@@ -21,6 +21,21 @@ class SessionStats:
 	def get_total_time(self) -> float:
 		return time.time() - self.total_start_time
 
+	def to_dict(self) -> Dict:
+		"""Return the session statistics as a dictionary."""
+		total_requests = self.cache_hits + self.api_calls
+		cache_rate = (
+			(self.cache_hits / total_requests * 100) if total_requests > 0 else 0
+		)
+		return {
+			"total_duration_s": round(self.get_total_time(), 2),
+			"cache_hits": self.cache_hits,
+			"api_calls": self.api_calls,
+			"cache_rate_pct": round(cache_rate, 2),
+			"errors": self.errors,
+			"stage_durations_s": {k: round(v, 2) for k, v in self.stage_times.items()},
+		}
+
 
 # Global instance for tracking the current execution run
 stats = SessionStats()

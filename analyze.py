@@ -116,6 +116,7 @@ def main():
 	stats.end_stage("Reporting")
 
 	display_run_summary(stats)
+	logger.info({"event": "run_summary", "stats": stats.to_dict()})
 	logger.info("Application finished")
 
 
