@@ -9,7 +9,7 @@ EXPORT ?=
 INDEX ?=
 
 run:
-	uv run analyze.py $(TICKER) \
+	@uv run analyze.py $(TICKER) \
 		$(if $(FILE),--file $(FILE)) \
 		$(if $(EXPORT),--export $(EXPORT)) \
 		$(if $(INDEX),--index $(INDEX)) \
@@ -40,7 +40,7 @@ check: format lint test coverage
 setup:
 	cp scripts/setup_hooks.sh .git/hooks/pre-commit
 	chmod +x .git/hooks/pre-commit
-	echo "Git hooks installed successfully."
+	@echo "Git hooks installed successfully."
 
 # Remove temporary files and the virtual environment
 clean:

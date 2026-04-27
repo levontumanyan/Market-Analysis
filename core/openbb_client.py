@@ -98,7 +98,7 @@ def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 
 		# Save to cache
 		CACHE_DIR.mkdir(parents=True, exist_ok=True)
-		cache_file.write_text(json.dumps(combined_data, default=str, indent=2))
+		cache_file.write_text(json.dumps(combined_data, default=str, indent="\t"))
 
 		# Light rate limiting
 		time.sleep(random.uniform(0.6, 1.1))
