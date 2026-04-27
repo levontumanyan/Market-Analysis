@@ -1,9 +1,10 @@
-import sqlite3
 import logging
+import sqlite3
 from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
 
 class DatabaseManager:
 	def __init__(self, db_path: str = "market_analysis.db"):
@@ -21,7 +22,7 @@ class DatabaseManager:
 	def _create_tables(self):
 		"""Create schema tables."""
 		cursor = self.conn.cursor()
-		
+
 		# Assets table
 		cursor.execute("""
 			CREATE TABLE IF NOT EXISTS assets (

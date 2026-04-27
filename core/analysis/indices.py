@@ -18,8 +18,8 @@ def get_index_components(
 	"""
 	Fetch components of an index or ETF.
 	1. Checks DB for existing constituents (if repo provided).
-	   - If data is fresh (< 7 days), returns it.
-	   - If data is stale, continues to fetch fresh data.
+		- If data is fresh (< 7 days), returns it.
+		- If data is stale, continues to fetch fresh data.
 	2. Checks if it's a major index (SP500, NASDAQ100, DOW) for full lists.
 	3. Falls back to yfinance funds_data (Top 10) for other ETFs.
 	Returns a list of ticker symbols.
@@ -37,12 +37,15 @@ def get_index_components(
 				db_constituents = repo.get_index_constituents(index_ticker)
 				if db_constituents:
 					logger.info(
-						f"Found fresh constituents for {index_ticker} in DB "
-						f"(updated {index_meta['last_updated']})"
+						"Found fresh constituents for %s in DB (updated %s)",
+						index_ticker,
+						index_meta["last_updated"],
 					)
 					return db_constituents
 			else:
-				logger.info(f"DB constituents for {index_ticker} are stale. Refreshing...")
+				logger.info(
+					f"DB constituents for {index_ticker} are stale. Refreshing..."
+				)
 
 	# 2. Try major index full constituent fetching
 	mapping = {
@@ -80,12 +83,14 @@ def get_index_components(
 	# 4. Save to DB if we found something OR if it was stale (to update timestamp)
 	if repo:
 		try:
-			# If we have constituents, update them. 
+			# If we have constituents, update them.
 			# If we don't, we still update the index metadata to refresh last_updated
 			repo.upsert_index(index_ticker, index_ticker, is_etf=is_etf)
 			if constituents:
 				repo.update_index_constituents(index_ticker, constituents)
-				logger.info(f"Persisted {len(constituents)} constituents for {index_ticker} to DB")
+				logger.info(
+					f"Persisted {len(constituents)} constituents for {index_ticker} to DB"
+				)
 			else:
 				# If refresh failed to find anything, clear constituents in DB
 				# to avoid returning stale data next time
