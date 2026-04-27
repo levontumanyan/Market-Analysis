@@ -8,5 +8,5 @@ load_dotenv()
 ROOT_DIR = Path(__file__).parent
 CONFIG_DIR = ROOT_DIR / "benchmarks"
 SECTORS_PATH = CONFIG_DIR / "sectors.json"
-CACHE_DIR = ROOT_DIR / "cache" / "openbb"
+CACHE_DIR = ROOT_DIR / "cache" / "yfinance"
 PROFILES_PATH = ROOT_DIR / "profiles" / "investor_profiles.json"
