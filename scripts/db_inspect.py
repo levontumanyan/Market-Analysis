@@ -171,10 +171,42 @@ def show_profiles():
 	conn.close()
 
 
+def show_benchmarks():
+	conn = get_db_conn()
+	if not conn:
+		return
+
+	cursor = conn.cursor()
+	cursor.execute(
+		"SELECT asset_type, metric_key, formula_type, weight, params_json FROM global_benchmarks ORDER BY asset_type, metric_key"
+	)
+	rows = cursor.fetchall()
+
+	table = Table(title="Global Benchmarks (Core Rules)")
+	table.add_column("Type", style="cyan")
+	table.add_column("Metric", style="green")
+	table.add_column("Formula", style="magenta")
+	table.add_column("Weight", justify="right", style="yellow")
+	table.add_column("Parameters", style="dim")
+
+	for row in rows:
+		table.add_row(
+			row["asset_type"],
+			row["metric_key"],
+			row["formula_type"],
+			f"{row['weight']:.1f}",
+			row["params_json"],
+		)
+
+	console.print(table)
+	conn.close()
+
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
-		"view", choices=["assets", "indices", "snapshots", "sectors", "profiles"]
+		"view",
+		choices=["assets", "indices", "snapshots", "sectors", "profiles", "benchmarks"],
 	)
 	args = parser.parse_args()
 
@@ -188,3 +220,5 @@ if __name__ == "__main__":
 		show_sectors()
 	elif args.view == "profiles":
 		show_profiles()
+	elif args.view == "benchmarks":
+		show_benchmarks()

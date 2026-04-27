@@ -71,6 +71,9 @@ db-sectors:
 db-profiles:
 	@PYTHONPATH=. uv run scripts/db_inspect.py profiles
 
+db-benchmarks:
+	@PYTHONPATH=. uv run scripts/db_inspect.py benchmarks
+
 populate-index:
 	@PYTHONPATH=. uv run scripts/populate_index.py $(INDEX)
 
