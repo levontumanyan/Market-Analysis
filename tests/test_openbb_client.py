@@ -28,8 +28,8 @@ def test_get_openbb_data_fetch_logic(mocker, tmp_path):
 	cache_dir.mkdir()
 	mocker.patch("core.openbb_client.CACHE_DIR", cache_dir)
 
-	# Mock the obb calls in core.openbb_client
-	mock_obb = mocker.patch("core.openbb_client.obb")
+	# Mock the obb calls directly in the openbb package
+	mock_obb = mocker.patch("openbb.obb")
 
 	mock_metrics = mocker.Mock()
 	mock_metrics.to_dict.return_value = {"pe_ratio": [30.0], "symbol": ["MSFT"]}

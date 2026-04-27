@@ -3,8 +3,6 @@ import random
 import time
 from typing import Any, Dict
 
-from openbb import obb
-
 from config import CACHE_DIR
 from core.logger import get_logger
 from core.stats import stats
@@ -30,7 +28,11 @@ def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 			logger.warning(f"Failed to read cache for {ticker_symbol}: {e}")
 			pass
 
+	# Delayed import to speed up startup on cache hits
+	from openbb import obb
+
 	# 2. Fetch fresh data
+
 	logger.info(f"Fetching fresh data for {ticker_symbol} from OpenBB")
 	stats.api_calls += 1
 	try:

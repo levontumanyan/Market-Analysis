@@ -34,21 +34,37 @@ make run TICKER="AAPL MSFT GOOGL"
 - `make lint`: Check for code style and logical errors.
 - `make setup`: Install git pre-commit hooks.
 
-# Configuration
+# Configuration (Database-Driven)
 
-- **Stock Benchmarks**: Global defaults in `benchmarks/stock.json`.
-- **Sector Overrides**: Sector-specific valuation targets in `benchmarks/sectors.json`.
-- **ETF Benchmarks**: Defined in `benchmarks/etf.json`.
-- **Investment Profiles**: Defined in `profiles/investor_profiles.json`.
-- **Reports**: All exported CSV/TXT files are saved in the `reports/` directory (ignored by Git).
+The "Investment Brain" stores all logic in `market_analysis.db`. You can visualize these rules using:
+- `make db-benchmarks`: View master scoring rules (STOCK vs ETF).
+- `make db-profiles`: View available investment strategies.
+- `make db-sectors`: View sector-specific valuation overrides.
 
-## Weight Merging Logic
+## Strategic Weight Resolution Flow
 
-The system uses a hierarchical approach to determine the weight of each metric during evaluation:
+When you run an analysis (e.g., `make run TICKER=NVDA PROFILE=growth`), the system follows this exact path to calculate the score:
 
-1.  **Profile Overrides**: When a profile is selected (e.g., `growth`), the system first looks for the metric's weight in the selected profile.
-2.  **Benchmark Defaults**: If the metric is not defined in the selected profile, the system falls back to the default weight in the corresponding benchmark JSON.
-3.  **Global Default**: If no weight is found, it defaults to `1.0`.
+### 1. Identify Rules (`global_benchmarks` table)
+The system fetches all metrics defined for the asset type (STOCK or ETF). Every metric has a **Baseline Weight** (column: `weight`) which acts as the default importance.
+
+### 2. Apply Peer Logic (`sector_benchmarks` table)
+If the asset has a sector (e.g., "Technology"), the system checks for scoring overrides. 
+- **Engages:** `metric_key`, `value_a`, `value_b`.
+- **Note:** This changes *how* a stock is judged (e.g., what P/E is considered "good"), but it does **not** change the weight.
+
+### 3. Resolve Importance (`profile_weights` table)
+The system looks up the chosen profile (e.g., "growth").
+- **Engages:** `profile_name`, `metric_key`, `weight`.
+- **Logic:** For each metric, the code performs a lookup:
+  - **Match Found:** The **Profile Weight** completely replaces the baseline.
+  - **No Match:** The system falls back to the **Baseline Weight** from `global_benchmarks`.
+
+### 4. Final Points Calculation
+For each metric, the final contribution is calculated as:
+`Points = Strength (0.0 to 1.0) * Resolved Weight`
+
+The sum of all points is divided by the sum of all resolved weights to produce the final percentage.
 
 # Scoring Methodologies
 
