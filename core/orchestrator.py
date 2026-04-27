@@ -36,13 +36,13 @@ def analyze_asset(
 
 	# Load benchmarks with sector context for stocks
 	sector_context = asset.sector if asset.asset_type == AssetType.STOCK else None
-	benchmark_defs = load_benchmarks(benchmark_path, sector=sector_context)
+	benchmark_defs = load_benchmarks(benchmark_path, sector=sector_context, repo=repo)
 
 	if not benchmark_defs:
 		logger.error(f"No benchmarks found for {symbol} at {benchmark_path}")
 		return None
 
-	profile_weights = get_profile_weights(profile)
+	profile_weights = get_profile_weights(repo, profile)
 	results = [evaluate_metric(asset, b, profile_weights) for b in benchmark_defs]
 
 	# Calculate total score

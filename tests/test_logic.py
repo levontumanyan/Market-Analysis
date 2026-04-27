@@ -1,8 +1,25 @@
+import pytest
+
 from core.analysis.indices import get_index_components
 from core.analysis.preprocessing import postprocess_score, preprocess_metric_value
+from core.database import DatabaseManager, DatabaseRepository
 from core.profiles import get_profile_weights
 from core.schema import AssetData
 from core.ui.formatters import format_display_value
+
+
+@pytest.fixture
+def repo(tmp_path):
+	db_file = tmp_path / "test_market_logic.db"
+	manager = DatabaseManager(str(db_file))
+	repo = DatabaseRepository(manager)
+
+	# Seed for tests
+	repo.upsert_profile("growth", "Growth")
+	repo.upsert_profile_weight("growth", "revenueGrowth", 2.5)
+
+	yield repo
+	manager.close()
 
 
 def test_preprocess_metric_value():
@@ -28,10 +45,10 @@ def test_postprocess_score():
 	assert postprocess_score("trailingPE", 15.0, 0.5) == 0.5
 
 
-def test_profile_weights_loading():
-	weights = get_profile_weights("growth")
+def test_profile_weights_loading(repo):
+	weights = get_profile_weights(repo, "growth")
 	assert isinstance(weights, dict)
-	assert "revenueGrowth" in weights
+	assert weights.get("revenueGrowth") == 2.5
 
 
 def test_format_display_value():

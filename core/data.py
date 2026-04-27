@@ -2,33 +2,40 @@ import json
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
-from config import SECTORS_PATH
+from core.database.repository import DatabaseRepository
 
 from .providers.openbb_provider import OpenBBProvider
 from .schema import AssetData
 
 
-def load_benchmarks(path: str, sector: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_benchmarks(
+	path: str, sector: Optional[str] = None, repo: Optional[DatabaseRepository] = None
+) -> List[Dict[str, Any]]:
 	"""
-	Load benchmarks from a specific path and optionally apply sector overrides.
+	Load benchmarks from a specific path and optionally apply sector overrides from the DB.
 	"""
 	try:
 		with open(path, "r") as f:
 			global_benchmarks = json.load(f)
 
-		if not sector:
+		if not sector or not repo:
 			return global_benchmarks
 
-		# Apply Sector Overrides from the dedicated sectors file
-		try:
-			with open(SECTORS_PATH, "r") as f:
-				all_overrides = json.load(f)
-				overrides = all_overrides.get(sector, {})
-		except (FileNotFoundError, json.JSONDecodeError):
-			overrides = {}
-
-		if not overrides:
+		# Apply Sector Overrides from the database
+		db_overrides = repo.get_sector_benchmarks(sector)
+		if not db_overrides:
 			return global_benchmarks
+
+		# Convert DB format back to the dictionary format expected by the merge logic
+		# DB rows: {'metric_key': 'pe_ratio', 'benchmark_type': 'best_worst', 'value_a': 25.0, 'value_b': 60.0}
+		overrides = {}
+		for row in db_overrides:
+			m_key = row["metric_key"]
+			b_type = row["benchmark_type"]
+			if b_type == "best_worst":
+				overrides[m_key] = {"best": row["value_a"], "worst": row["value_b"]}
+			elif b_type == "target_width":
+				overrides[m_key] = {"target": row["value_a"], "width": row["value_b"]}
 
 		# Apply overrides to global defaults
 		final_benchmarks = []
