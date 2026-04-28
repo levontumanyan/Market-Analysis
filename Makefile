@@ -74,6 +74,9 @@ db-profiles:
 db-benchmarks:
 	@PYTHONPATH=. uv run scripts/db_inspect.py benchmarks
 
+db-stock-inventory:
+	@PYTHONPATH=. uv run scripts/db_inspect.py inventory
+
 populate-index:
 	@PYTHONPATH=. uv run scripts/populate_index.py $(INDEX)
 

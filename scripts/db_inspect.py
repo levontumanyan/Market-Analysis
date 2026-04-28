@@ -202,11 +202,39 @@ def show_benchmarks():
 	conn.close()
 
 
+def show_all_assets():
+	conn = get_db_conn()
+	if not conn:
+		return
+
+	cursor = conn.cursor()
+	cursor.execute("SELECT symbol, name FROM assets ORDER BY symbol")
+	rows = cursor.fetchall()
+
+	table = Table(title=f"All Assets in DB ({len(rows)})")
+	table.add_column("Symbol", style="cyan")
+	table.add_column("Name", style="green")
+
+	for row in rows:
+		table.add_row(row["symbol"], row["name"] or "N/A")
+
+	console.print(table)
+	conn.close()
+
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument(
 		"view",
-		choices=["assets", "indices", "snapshots", "sectors", "profiles", "benchmarks"],
+		choices=[
+			"assets",
+			"indices",
+			"snapshots",
+			"sectors",
+			"profiles",
+			"benchmarks",
+			"inventory",
+		],
 	)
 	args = parser.parse_args()
 
@@ -222,3 +250,5 @@ if __name__ == "__main__":
 		show_profiles()
 	elif args.view == "benchmarks":
 		show_benchmarks()
+	elif args.view == "inventory":
+		show_all_assets()
