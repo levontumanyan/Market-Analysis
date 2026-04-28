@@ -1,11 +1,14 @@
 import json
 import random
 import time
+from datetime import datetime
 from typing import Any, Dict
+from zoneinfo import ZoneInfo
 
 from config import CACHE_DIR
 from core.logger import get_logger
 from core.stats import stats
+from core.utils.market import get_last_market_close, is_market_closed
 
 logger = get_logger(__name__)
 
@@ -13,13 +16,36 @@ logger = get_logger(__name__)
 def get_openbb_data(ticker_symbol: str) -> Dict[str, Any]:
 	"""
 	Fetch standardized data via OpenBB Platform using multiple endpoints.
-	Handles 3-hour local caching.
+	Handles intelligent caching based on market hours.
 	"""
 	ticker_symbol = ticker_symbol.upper()
 	cache_file = CACHE_DIR / f"{ticker_symbol}.json"
 
-	# 1. Return cache if fresh (< 3 hour)
-	if cache_file.exists() and (time.time() - cache_file.stat().st_mtime) < 10800:
+	# 1. Determine if we can use the cache
+	use_cache = False
+	if cache_file.exists():
+		mtime = cache_file.stat().st_mtime
+		age_seconds = time.time() - mtime
+
+		# Condition A: Fresh cache (< 3 hours old)
+		if age_seconds < 10800:
+			use_cache = True
+		# Condition B: Market is closed and cache was updated after the last market close
+		else:
+			now = datetime.now(ZoneInfo("UTC"))
+			if is_market_closed(now):
+				logger.info(
+					f"Market is currently closed. Checking post-close cache for {ticker_symbol}"
+				)
+				last_close = get_last_market_close(now)
+				cache_time = datetime.fromtimestamp(mtime, tz=ZoneInfo("UTC"))
+				if cache_time > last_close:
+					logger.info(
+						f"Market closed; using post-close cache for {ticker_symbol}"
+					)
+					use_cache = True
+
+	if use_cache:
 		try:
 			logger.info(f"Cache hit for {ticker_symbol}")
 			stats.cache_hits += 1
