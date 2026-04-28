@@ -17,6 +17,14 @@ run:
 		$(if $(VERBOSE),--verbose) \
 		--profile $(PROFILE)
 
+# Run analysis against all stocks in the database
+# Usage: make run-all-stocks PROFILE="growth" EXPORT="full_report.csv"
+run-all-stocks:
+	@uv run analyze.py --all \
+		$(if $(EXPORT),--export $(EXPORT)) \
+		$(if $(VERBOSE),--verbose) \
+		--profile $(PROFILE)
+
 # Run code linting and formatting checks
 lint:
 	uv run ruff check .

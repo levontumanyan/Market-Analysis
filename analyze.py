@@ -30,6 +30,12 @@ def main():
 		"-i", "--index", help="Ticker of an index/ETF to analyze its components"
 	)
 	parser.add_argument(
+		"-a",
+		"--all",
+		action="store_true",
+		help="Analyze all assets currently in the database",
+	)
+	parser.add_argument(
 		"-p",
 		"--profile",
 		default="balanced",
@@ -64,6 +70,18 @@ def main():
 		tickers.extend(parse_ticker_file(args.file))
 	if args.index:
 		tickers.extend(get_index_components(args.index, repo=repo))
+	if args.all:
+		# Fetch all symbols that aren't indices themselves
+		# This includes STOCK and assets not yet tagged (lazy metadata)
+		cursor = db_manager.get_connection().cursor()
+		cursor.execute(
+			"SELECT symbol FROM assets WHERE symbol NOT IN (SELECT symbol FROM indices)"
+		)
+		all_symbols = [row[0] for row in cursor.fetchall()]
+		tickers.extend(all_symbols)
+
+	# Deduplicate and normalize
+	tickers = sorted(list(set(t.upper().strip() for t in tickers)))
 	stats.end_stage("Data Discovery")
 
 	if not tickers:
