@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import sys
 from datetime import datetime
 
@@ -7,6 +8,17 @@ from config import ROOT_DIR
 
 LOG_DIR = ROOT_DIR / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Determine global log level from environment
+DEFAULT_LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+level_map = {
+	"DEBUG": logging.DEBUG,
+	"INFO": logging.INFO,
+	"WARNING": logging.WARNING,
+	"ERROR": logging.ERROR,
+	"CRITICAL": logging.CRITICAL,
+}
+LOG_LEVEL = level_map.get(DEFAULT_LOG_LEVEL, logging.INFO)
 
 # Generate a unique filename for this execution run
 RUN_TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -40,17 +52,17 @@ def setup_logging(verbose: bool = False):
 	and an optional console handler.
 	"""
 	root_logger = logging.getLogger()
-	# Set to DEBUG to capture everything in the file
-	root_logger.setLevel(logging.DEBUG)
+	# Set to the configured LOG_LEVEL (default INFO)
+	root_logger.setLevel(LOG_LEVEL)
 
 	# Remove any existing handlers
 	for handler in root_logger.handlers[:]:
 		root_logger.removeHandler(handler)
 
-	# 1. File Handler (Always JSON, always DEBUG level)
+	# 1. File Handler (Always JSON, uses global LOG_LEVEL)
 	file_handler = logging.FileHandler(LOG_FILE)
 	file_handler.setFormatter(JSONFormatter())
-	file_handler.setLevel(logging.DEBUG)
+	file_handler.setLevel(LOG_LEVEL)
 	root_logger.addHandler(file_handler)
 
 	# 2. Console Handler (Only if verbose, standard text for readability)
@@ -60,7 +72,9 @@ def setup_logging(verbose: bool = False):
 			"%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%H:%M:%S"
 		)
 		console_handler.setFormatter(console_fmt)
-		console_handler.setLevel(logging.INFO)
+		# Console shows INFO by default unless LOG_LEVEL is DEBUG
+		console_level = min(LOG_LEVEL, logging.INFO)
+		console_handler.setLevel(console_level)
 		root_logger.addHandler(console_handler)
 
 

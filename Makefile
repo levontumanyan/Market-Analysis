@@ -3,6 +3,7 @@
 # Run the analysis for one or more tickers
 # Usage: make run TICKER="AAPL MSFT" PROFILE="growth" EXPORT="report.csv"
 PROFILE ?= balanced
+LOG_LEVEL ?= INFO
 TICKER ?=
 FILE ?=
 EXPORT ?=
@@ -10,7 +11,7 @@ INDEX ?=
 VERBOSE ?=
 
 run:
-	@uv run analyze.py $(TICKER) \
+	@LOG_LEVEL=$(LOG_LEVEL) uv run analyze.py $(TICKER) \
 		$(if $(FILE),--file $(FILE)) \
 		$(if $(EXPORT),--export $(EXPORT)) \
 		$(if $(INDEX),--index $(INDEX)) \
@@ -20,7 +21,7 @@ run:
 # Run analysis against all stocks in the database
 # Usage: make run-all-stocks PROFILE="growth" EXPORT="full_report.csv"
 run-all-stocks:
-	@uv run analyze.py --all \
+	@LOG_LEVEL=$(LOG_LEVEL) uv run analyze.py --all \
 		$(if $(EXPORT),--export $(EXPORT)) \
 		$(if $(VERBOSE),--verbose) \
 		--profile $(PROFILE)
