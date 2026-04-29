@@ -99,3 +99,25 @@ def test_foreign_key_constraints(db_manager):
 		cursor.execute(
 			"INSERT INTO index_constituents (index_symbol, asset_symbol) VALUES ('SP500', 'AAPL');"
 		)
+
+
+def test_historical_scores(db_manager):
+	"""Test creating and retrieving historical analysis snapshots."""
+	import time
+
+	repo = DatabaseRepository(db_manager)
+	symbol = "TEST_STOCK"
+	profile = "growth"
+
+	# Create some snapshots
+	repo.create_analysis_snapshot(symbol, profile, 75.0, '{"result": "good"}')
+	time.sleep(1.1)  # Ensure different timestamp (second precision)
+	repo.create_analysis_snapshot(symbol, profile, 80.0, '{"result": "better"}')
+
+	# Retrieve snapshots
+	history = repo.get_historical_scores(symbol, profile)
+
+	assert len(history) == 2
+	assert history[0]["total_score"] == 80.0
+	assert history[1]["total_score"] == 75.0
+	assert "timestamp" in history[0]

@@ -13,6 +13,7 @@ from core.reporting.csv_reporter import CSVReporter
 from core.reporting.txt_reporter import TXTReporter
 from core.stats import stats
 from core.ui.terminal import (
+	display_historical_scores,
 	display_individual_results,
 	display_run_summary,
 	display_summary_table,
@@ -46,6 +47,11 @@ def main():
 		"-e",
 		"--export",
 		help="Export results to a CSV or TXT file (e.g., report.csv or report.txt)",
+	)
+	parser.add_argument(
+		"--history",
+		action="store_true",
+		help="Show historical scores for the provided ticker(s)",
 	)
 	parser.add_argument(
 		"-v",
@@ -88,6 +94,16 @@ def main():
 		console.print("[bold red]Error: No tickers provided.[/bold red]")
 		parser.print_help()
 		sys.exit(1)
+
+	# 1.5 Handle History Request
+	if args.history:
+		console.print(
+			f"[bold green]Fetching history for {len(tickers)} asset(s) with [cyan]{args.profile.upper()}[/cyan] profile[/bold green]"
+		)
+		for ticker in tickers:
+			snapshots = repo.get_historical_scores(ticker, args.profile)
+			display_historical_scores(ticker, args.profile, snapshots)
+		sys.exit(0)
 
 	# 2. Process Tickers
 	stats.start_stage("Analysis & Scoring")

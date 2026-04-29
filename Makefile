@@ -26,6 +26,11 @@ run-all-stocks:
 		$(if $(VERBOSE),--verbose) \
 		--profile $(PROFILE)
 
+# Show historical scores for one or more tickers
+# Usage: make history TICKER=AAPL PROFILE=growth
+history:
+	@LOG_LEVEL=$(LOG_LEVEL) uv run analyze.py $(TICKER) --history --profile $(PROFILE)
+
 # Run code linting and formatting checks
 lint:
 	uv run ruff check .

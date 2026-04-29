@@ -142,6 +142,20 @@ class DatabaseRepository:
 		)
 		conn.commit()
 
+	def get_historical_scores(self, symbol: str, profile: str) -> List[dict]:
+		"""Get historical analysis snapshots for a specific symbol and profile."""
+		conn = self.db.get_connection()
+		cursor = conn.cursor()
+		cursor.execute(
+			"""
+			SELECT timestamp, total_score, results_json FROM analysis_snapshots
+			WHERE symbol = ? AND profile = ?
+			ORDER BY timestamp DESC
+		""",
+			(symbol, profile),
+		)
+		return [dict(row) for row in cursor.fetchall()]
+
 	def upsert_sector_benchmark(
 		self,
 		sector: str,

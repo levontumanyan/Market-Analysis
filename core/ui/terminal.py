@@ -1,3 +1,5 @@
+import json
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from rich.console import Console
@@ -93,6 +95,95 @@ def display_individual_results(
 		)
 	else:
 		console.print("\n[bold red]Insufficient data to calculate score.[/bold red]\n")
+
+
+def display_historical_scores(symbol: str, profile: str, snapshots: List[dict]):
+	"""Display historical scores for a company and profile."""
+	if not snapshots:
+		console.print(
+			f"[bold red]No historical data found for {symbol} with {profile} profile.[/bold red]"
+		)
+		return
+
+	# Short labels for metrics to keep table width manageable
+	metric_labels = {
+		"current_ratio": "CR",
+		"days_to_cover": "DTC",
+		"debt_to_equity": "D/E",
+		"dividend_yield": "DY",
+		"ebitda_margin": "EBITDA%",
+		"enterprise_to_ebitda": "EV/E",
+		"forward_pe": "FPE",
+		"insider_ownership": "Own.I",
+		"institution_ownership": "Own.Inst",
+		"pe_ratio": "PE",
+		"peg_ratio": "PEG",
+		"price_to_book": "P/B",
+		"profit_margin": "PM%",
+		"recommendation_mean": "Rec",
+		"return_on_equity": "ROE",
+		"revenue_growth": "Rev.G",
+		"short_percent_of_float": "SPF",
+	}
+
+	table = Table(title=f"Historical Scores for {symbol} ({profile.upper()} profile)")
+	table.add_column("Timestamp", style="dim")
+	table.add_column("Total", justify="right")
+
+	# Dynamically discover metric names from the latest snapshot's results_json
+	try:
+		latest_results = json.loads(snapshots[0]["results_json"])
+		# Sort metrics by importance (weight) if available in JSON
+		latest_results.sort(key=lambda x: x.get("weight", 0), reverse=True)
+
+		# Limit to top 10 metrics to keep the table readable
+		latest_results = latest_results[:10]
+
+		metric_keys = [r["metric"] for r in latest_results]
+		for key in metric_keys:
+			label = metric_labels.get(key, key[:5])
+			table.add_column(label, justify="right")
+	except (json.JSONDecodeError, KeyError, IndexError):
+		metric_keys = []
+
+	for snap in snapshots:
+		score = snap["total_score"]
+		color = "bold green" if score >= 70 else "yellow" if score >= 40 else "red"
+
+		# Shorten timestamp from YYYY-MM-DD HH:MM:SS to DD/MM/YY
+		try:
+			dt = datetime.strptime(snap["timestamp"], "%Y-%m-%d %H:%M:%S")
+			ts_display = dt.strftime("%d/%m/%y")
+		except (ValueError, TypeError):
+			ts_display = snap["timestamp"][:8]
+
+		row = [ts_display, f"[{color}]{score:.1f}%[/{color}]"]
+
+		try:
+			results_list = json.loads(snap["results_json"])
+			# Create a map for easy lookup, handle missing 'pct' key
+			results_map = {}
+			for r in results_list:
+				m_key = r["metric"]
+				if "pct" in r:
+					results_map[m_key] = r["pct"]
+				elif r.get("weight", 0) > 0:
+					results_map[m_key] = r["score"] / r["weight"]
+				else:
+					results_map[m_key] = 0.0
+
+			for key in metric_keys:
+				pct = results_map.get(key, 0.0)
+				# Convert 0.0-1.0 to 0-100%
+				pct_val = pct * 100
+				pct_color = get_color_for_pct(pct)
+				row.append(f"[{pct_color}]{pct_val:.0f}%[/{pct_color}]")
+		except (json.JSONDecodeError, KeyError):
+			row.extend(["N/A"] * len(metric_keys))
+
+		table.add_row(*row)
+
+	console.print(table)
 
 
 def display_summary_table(all_results: List[Dict[str, Any]]):
